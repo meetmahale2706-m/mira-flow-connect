@@ -34,8 +34,6 @@ export type Database = {
           pickup_address: string
           pickup_lat: number | null
           pickup_lng: number | null
-          scheduled_date: string | null
-          scheduled_time_slot: string | null
           started_at: string | null
           status: string
           updated_at: string
@@ -59,8 +57,6 @@ export type Database = {
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
-          scheduled_date?: string | null
-          scheduled_time_slot?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -84,8 +80,6 @@ export type Database = {
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
-          scheduled_date?: string | null
-          scheduled_time_slot?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -127,71 +121,6 @@ export type Database = {
           pincode?: string
           state?: string
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      delivery_ratings: {
-        Row: {
-          created_at: string
-          customer_id: string
-          delivery_id: string
-          driver_id: string
-          id: string
-          rating: number
-          review: string | null
-        }
-        Insert: {
-          created_at?: string
-          customer_id: string
-          delivery_id: string
-          driver_id: string
-          id?: string
-          rating: number
-          review?: string | null
-        }
-        Update: {
-          created_at?: string
-          customer_id?: string
-          delivery_id?: string
-          driver_id?: string
-          id?: string
-          rating?: number
-          review?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "delivery_ratings_delivery_id_fkey"
-            columns: ["delivery_id"]
-            isOneToOne: true
-            referencedRelation: "deliveries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      driver_checkins: {
-        Row: {
-          checked_in_at: string
-          checked_out_at: string | null
-          device_info: string | null
-          id: string
-          ip_address: string | null
-          user_id: string
-        }
-        Insert: {
-          checked_in_at?: string
-          checked_out_at?: string | null
-          device_info?: string | null
-          id?: string
-          ip_address?: string | null
-          user_id: string
-        }
-        Update: {
-          checked_in_at?: string
-          checked_out_at?: string | null
-          device_info?: string | null
-          id?: string
-          ip_address?: string | null
           user_id?: string
         }
         Relationships: []
@@ -275,7 +204,6 @@ export type Database = {
           created_at: string
           email: string
           id: string
-          last_login_at: string | null
           mobile: string
           name: string
           updated_at: string
@@ -285,7 +213,6 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-          last_login_at?: string | null
           mobile?: string
           name?: string
           updated_at?: string
@@ -295,34 +222,9 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-          last_login_at?: string | null
           mobile?: string
           name?: string
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      support_messages: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          role: string
-          user_id: string
-        }
-        Insert: {
-          content?: string
-          created_at?: string
-          id?: string
-          role?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          role?: string
           user_id?: string
         }
         Relationships: []

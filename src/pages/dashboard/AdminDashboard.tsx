@@ -10,7 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Users, Car, Package, BarChart3, Eye, CheckCircle2, XCircle, Fuel, TrendingUp, Layers, Clock, Ruler } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import DashboardLayout from "@/components/DashboardLayout";
-import DriverLeaderboard from "@/components/DriverLeaderboard";
 import { calculateRouteCost } from "@/utils/deliveryPooling";
 
 const CHART_COLORS = ["hsl(174, 62%, 38%)", "hsl(38, 92%, 50%)", "hsl(220, 25%, 14%)", "hsl(0, 84%, 60%)", "hsl(210, 15%, 60%)"];
@@ -305,9 +304,6 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         )}
-
-        {/* Leaderboard */}
-        {activeTab === "leaderboard" && <DriverLeaderboard />}
 
         {/* Analytics */}
         {activeTab === "analytics" && (

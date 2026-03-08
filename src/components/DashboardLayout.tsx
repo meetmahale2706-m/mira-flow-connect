@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, Bell, CalendarCheck, MessageCircle, Trophy } from "lucide-react";
+import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, Bell } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -33,7 +33,6 @@ interface DashboardLayoutProps {
 }
 
 const driverNav = [
-  { title: "nav.checkin", icon: CalendarCheck, tab: "checkin" },
   { title: "nav.available", icon: HandMetal, tab: "available" },
   { title: "nav.myDeliveries", icon: Package, tab: "mydeliveries" },
   { title: "nav.pooledRoutes", icon: Layers, tab: "pooled" },
@@ -47,7 +46,6 @@ const customerNav = [
   { title: "nav.tracking", icon: Navigation, tab: "tracking" },
   { title: "nav.orders", icon: Package, tab: "orders" },
   { title: "nav.addresses", icon: MapPin, tab: "addresses" },
-  { title: "nav.support", icon: MessageCircle, tab: "support" },
   { title: "nav.profile", icon: Settings, tab: "profile" },
 ];
 
@@ -55,7 +53,6 @@ const adminNav = [
   { title: "nav.dashboard", icon: BarChart3, tab: "overview" },
   { title: "nav.users", icon: Users, tab: "users" },
   { title: "nav.drivers", icon: Car, tab: "drivers" },
-  { title: "nav.leaderboard", icon: Trophy, tab: "leaderboard" },
   { title: "nav.deliveries", icon: Package, tab: "deliveries" },
   { title: "nav.analytics", icon: BarChart3, tab: "analytics" },
 ];
