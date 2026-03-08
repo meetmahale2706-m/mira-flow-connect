@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import DeliveryMap, { fetchRoute } from "@/components/DeliveryMap";
 import DriverEarnings from "@/components/DriverEarnings";
+import DriverCheckIn from "@/components/DriverCheckIn";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
 
 interface LatLng { lat: number; lng: number; }
@@ -23,7 +24,7 @@ interface LatLng { lat: number; lng: number; }
 const DriverDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState("available");
+  const [activeTab, setActiveTab] = useState("checkin");
   const [driverProfile, setDriverProfile] = useState<any>(null);
   const [myDeliveries, setMyDeliveries] = useState<any[]>([]);
   const [pendingDeliveries, setPendingDeliveries] = useState<any[]>([]);
@@ -217,6 +218,9 @@ const DriverDashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Check-In */}
+        {activeTab === "checkin" && <DriverCheckIn />}
 
         {/* Available */}
         {activeTab === "available" && (
