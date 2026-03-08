@@ -42,6 +42,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "Drivers",
     "nav.fuelStats": "Fuel Stats",
     "nav.checkin": "Check-In",
+    "nav.support": "AI Support",
+    "nav.leaderboard": "Leaderboard",
     "nav.language": "Language",
 
     // Driver
