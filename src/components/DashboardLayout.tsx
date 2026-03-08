@@ -33,6 +33,7 @@ interface DashboardLayoutProps {
 }
 
 const driverNav = [
+  { title: "nav.checkin", icon: CalendarCheck, tab: "checkin" },
   { title: "nav.available", icon: HandMetal, tab: "available" },
   { title: "nav.myDeliveries", icon: Package, tab: "mydeliveries" },
   { title: "nav.pooledRoutes", icon: Layers, tab: "pooled" },

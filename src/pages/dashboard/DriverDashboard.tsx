@@ -24,7 +24,7 @@ interface LatLng { lat: number; lng: number; }
 const DriverDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState("available");
+  const [activeTab, setActiveTab] = useState("checkin");
   const [driverProfile, setDriverProfile] = useState<any>(null);
   const [myDeliveries, setMyDeliveries] = useState<any[]>([]);
   const [pendingDeliveries, setPendingDeliveries] = useState<any[]>([]);
