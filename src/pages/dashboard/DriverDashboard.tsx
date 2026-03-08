@@ -19,6 +19,7 @@ import DriverEarnings from "@/components/DriverEarnings";
 import SupportChat from "@/components/SupportChat";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
 import SmartRouteOptimizer from "@/components/SmartRouteOptimizer";
+import ProofOfDelivery from "@/components/ProofOfDelivery";
 
 interface LatLng { lat: number; lng: number; }
 
@@ -205,6 +206,18 @@ const DriverDashboard = () => {
           </Button>
         )}
       </div>
+      {/* Proof photo upload for delivered/in_transit */}
+      {showActions === "trip" && (d.status === "in_transit" || d.status === "delivered") && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <ProofOfDelivery
+            deliveryId={d.id}
+            driverId={user!.id}
+            existingPhotoUrl={(d as any).proof_photo_url}
+            onUploaded={fetchData}
+            readOnly={d.status === "delivered" && !!(d as any).proof_photo_url}
+          />
+        </div>
+      )}
     </div>
   );
 

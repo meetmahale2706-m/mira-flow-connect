@@ -15,6 +15,9 @@ import CreateDeliveryForm from "@/components/CreateDeliveryForm";
 import CustomerTracking from "@/components/CustomerTracking";
 import DeliveryRating from "@/components/DeliveryRating";
 import SupportChat from "@/components/SupportChat";
+import DeliveryCostBreakdown from "@/components/DeliveryCostBreakdown";
+import DeliveryTimeline from "@/components/DeliveryTimeline";
+import ProofOfDelivery from "@/components/ProofOfDelivery";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -179,13 +182,36 @@ const CustomerDashboard = () => {
                         <Badge className={statusColor(d.status)}>{d.status}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">→ {d.dropoff_address?.slice(0, 40)}...</p>
-                      <div className="flex gap-3 text-xs text-muted-foreground">
-                        {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
-                        {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
-                        {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
-                        {d.estimated_cost > 0 && <span className="font-medium text-primary">₹{d.estimated_cost}</span>}
-                        <span>{new Date(d.created_at).toLocaleDateString()}</span>
+                      
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {/* Timeline */}
+                        <DeliveryTimeline
+                          status={d.status}
+                          createdAt={d.created_at}
+                          startedAt={d.started_at}
+                          completedAt={d.completed_at}
+                        />
+                        
+                        {/* Cost Breakdown */}
+                        {d.distance_km > 0 && d.package_weight > 0 && (
+                          <DeliveryCostBreakdown
+                            distanceKm={d.distance_km}
+                            weightKg={d.package_weight}
+                            estimatedCost={d.estimated_cost}
+                          />
+                        )}
                       </div>
+
+                      {/* Proof of Delivery */}
+                      {d.status === "delivered" && (
+                        <ProofOfDelivery
+                          deliveryId={d.id}
+                          driverId={d.driver_id || ""}
+                          existingPhotoUrl={(d as any).proof_photo_url}
+                          readOnly
+                        />
+                      )}
+
                       {/* Rating section for delivered orders */}
                       {d.status === "delivered" && (
                         <DeliveryRating

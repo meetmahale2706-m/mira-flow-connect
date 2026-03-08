@@ -11,6 +11,7 @@ import { Users, Car, Package, BarChart3, Eye, CheckCircle2, XCircle, Fuel, Trend
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import DashboardLayout from "@/components/DashboardLayout";
 import { calculateRouteCost } from "@/utils/deliveryPooling";
+import DeliveryAnalytics from "@/components/DeliveryAnalytics";
 
 const CHART_COLORS = ["hsl(174, 62%, 38%)", "hsl(38, 92%, 50%)", "hsl(220, 25%, 14%)", "hsl(0, 84%, 60%)", "hsl(210, 15%, 60%)"];
 
@@ -377,6 +378,11 @@ const AdminDashboard = () => {
               </Card>
             </div>
           </div>
+        )}
+
+        {/* Deep Analytics */}
+        {activeTab === "deepanalytics" && (
+          <DeliveryAnalytics deliveries={deliveries} driverProfiles={driverProfiles} />
         )}
       </div>
     </DashboardLayout>
