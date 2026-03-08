@@ -252,6 +252,8 @@ const CustomerDashboard = () => {
           </Card>
         )}
 
+        {activeTab === "support" && <SupportChat />}
+
         {activeTab === "profile" && (
           <Card className="max-w-md shadow-card">
             <CardHeader><CardTitle className="font-display">{t("customer.editProfile")}</CardTitle></CardHeader>
@@ -263,6 +265,13 @@ const CustomerDashboard = () => {
             </CardContent>
           </Card>
         )}
+
+        <RatingDialog
+          delivery={ratingDelivery}
+          open={!!ratingDelivery}
+          onClose={() => setRatingDelivery(null)}
+          onRated={fetchData}
+        />
       </div>
     </DashboardLayout>
   );
