@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Navigation, Clock, Ruler } from "lucide-react";
+import { Package, Navigation, Clock, Ruler, IndianRupee, TrendingUp, Weight, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import DeliveryMap, { calcDistance, estimateTime, reverseGeocode, fetchRoute } from "@/components/DeliveryMap";
+import { calculateDeliveryPrice } from "@/utils/pricing";
 import AddressSearch from "@/components/AddressSearch";
 
 interface LatLng { lat: number; lng: number; }
