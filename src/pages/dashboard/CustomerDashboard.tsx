@@ -8,11 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, MapPin, Plus, Trash2, Star, Search, Ruler, Clock, Navigation } from "lucide-react";
+import { Package, MapPin, Plus, Trash2, Star, Search, Ruler, Clock, Navigation, IndianRupee, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import CreateDeliveryForm from "@/components/CreateDeliveryForm";
 import CustomerTracking from "@/components/CustomerTracking";
+import RatingDialog from "@/components/RatingDialog";
+import SupportChat from "@/components/SupportChat";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
