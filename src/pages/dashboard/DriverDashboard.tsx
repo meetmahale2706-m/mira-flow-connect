@@ -219,6 +219,9 @@ const DriverDashboard = () => {
           </div>
         </div>
 
+        {/* Check-In */}
+        {activeTab === "checkin" && <DriverCheckIn />}
+
         {/* Available */}
         {activeTab === "available" && (
           <div className="grid gap-6 lg:grid-cols-2">
