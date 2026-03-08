@@ -16,32 +16,59 @@ export type Database = {
     Tables: {
       deliveries: {
         Row: {
+          completed_at: string | null
           created_at: string
           customer_id: string | null
+          distance_km: number | null
           driver_id: string | null
           dropoff_address: string
+          dropoff_lat: number | null
+          dropoff_lng: number | null
+          estimated_time_mins: number | null
           id: string
+          package_weight: number | null
           pickup_address: string
+          pickup_lat: number | null
+          pickup_lng: number | null
+          started_at: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
           customer_id?: string | null
+          distance_km?: number | null
           driver_id?: string | null
           dropoff_address?: string
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          estimated_time_mins?: number | null
           id?: string
+          package_weight?: number | null
           pickup_address?: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          started_at?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
           customer_id?: string | null
+          distance_km?: number | null
           driver_id?: string | null
           dropoff_address?: string
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          estimated_time_mins?: number | null
           id?: string
+          package_weight?: number | null
           pickup_address?: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          started_at?: string | null
           status?: string
           updated_at?: string
         }
