@@ -179,12 +179,22 @@ const CustomerDashboard = () => {
                         <Badge className={statusColor(d.status)}>{d.status}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">→ {d.dropoff_address?.slice(0, 40)}...</p>
-                      <div className="flex gap-3 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                         {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
                         {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
                         {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
+                        {(d as any).estimated_cost > 0 && <span className="flex items-center gap-1 font-medium text-primary"><IndianRupee className="h-3 w-3" />₹{(d as any).estimated_cost}</span>}
+                        {(d as any).scheduled_date && <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{(d as any).scheduled_date} {(d as any).scheduled_time_slot}</span>}
                         <span>{new Date(d.created_at).toLocaleDateString()}</span>
                       </div>
+                      {d.status === "delivered" && d.driver_id && !ratedIds.has(d.id) && (
+                        <Button variant="outline" size="sm" className="gap-1.5 mt-1" onClick={() => setRatingDelivery(d)}>
+                          <Star className="h-3.5 w-3.5" /> Rate Delivery
+                        </Button>
+                      )}
+                      {ratedIds.has(d.id) && (
+                        <Badge variant="secondary" className="gap-1 text-xs"><Star className="h-3 w-3" /> Rated</Badge>
+                      )}
                     </div>
                   ))}
                 </div>
