@@ -150,7 +150,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
             </div>
 
             {distance > 0 && (
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
                   <Ruler className="h-3.5 w-3.5" />
                   {distance} km
@@ -159,6 +159,29 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
                   <Clock className="h-3.5 w-3.5" />
                   ~{estTime} min
                 </Badge>
+              </div>
+            )}
+
+            {pricing && (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold flex items-center gap-1.5">
+                    <IndianRupee className="h-4 w-4 text-primary" />
+                    Estimated Cost
+                  </span>
+                  <span className="text-xl font-bold font-display text-primary">₹{pricing.total}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
+                  <span>Base fee: ₹{pricing.breakdown.base}</span>
+                  <span>Distance: ₹{pricing.breakdown.distance}</span>
+                  <span>Weight: ₹{pricing.breakdown.weight}</span>
+                  {pricing.breakdown.surge > 0 && (
+                    <span className="text-accent-foreground font-medium flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      {pricing.breakdown.surgeLabel}: +₹{pricing.breakdown.surge}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
 
