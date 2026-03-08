@@ -206,6 +206,18 @@ const DriverDashboard = () => {
           </Button>
         )}
       </div>
+      {/* Proof photo upload for delivered/in_transit */}
+      {showActions === "trip" && (d.status === "in_transit" || d.status === "delivered") && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <ProofOfDelivery
+            deliveryId={d.id}
+            driverId={user!.id}
+            existingPhotoUrl={(d as any).proof_photo_url}
+            onUploaded={fetchData}
+            readOnly={d.status === "delivered" && !!(d as any).proof_photo_url}
+          />
+        </div>
+      )}
     </div>
   );
 
