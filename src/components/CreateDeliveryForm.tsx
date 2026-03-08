@@ -29,6 +29,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
   const [distance, setDistance] = useState(0);
   const [estTime, setEstTime] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [pricing, setPricing] = useState<ReturnType<typeof calculateDeliveryPrice> | null>(null);
 
   // Fetch route when both points set
   useEffect(() => {
