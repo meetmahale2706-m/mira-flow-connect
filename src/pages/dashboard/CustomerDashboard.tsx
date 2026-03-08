@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, MapPin, Plus, Trash2, Star, Settings, Search, Ruler, Clock } from "lucide-react";
+import { Package, MapPin, Plus, Trash2, Star, Settings, Search, Ruler, Clock, Navigation } from "lucide-react";
 import { toast } from "sonner";
 import DashboardNav from "@/components/DashboardNav";
 import CreateDeliveryForm from "@/components/CreateDeliveryForm";
+import CustomerTracking from "@/components/CustomerTracking";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -19,6 +20,7 @@ const CustomerDashboard = () => {
   const [deliveries, setDeliveries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [trackingDelivery, setTrackingDelivery] = useState<any>(null);
 
   const [name, setName] = useState(profile?.name || "");
   const [mobile, setMobile] = useState(profile?.mobile || "");
@@ -31,6 +33,18 @@ const CustomerDashboard = () => {
 
   useEffect(() => { if (user) fetchData(); }, [user]);
   useEffect(() => { if (profile) { setName(profile.name); setMobile(profile.mobile); } }, [profile]);
+
+  // Realtime updates for deliveries
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("customer-deliveries")
+      .on("postgres_changes", { event: "*", schema: "public", table: "deliveries", filter: `customer_id=eq.${user.id}` }, () => {
+        fetchData();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -89,6 +103,8 @@ const CustomerDashboard = () => {
     }
   };
 
+  const activeDeliveries = deliveries.filter((d) => ["assigned", "in_transit"].includes(d.status));
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -107,6 +123,7 @@ const CustomerDashboard = () => {
         <Tabs defaultValue="create" className="space-y-6">
           <TabsList>
             <TabsTrigger value="create" className="gap-2"><Plus className="h-4 w-4" />New Delivery</TabsTrigger>
+            <TabsTrigger value="tracking" className="gap-2"><Navigation className="h-4 w-4" />Live Tracking ({activeDeliveries.length})</TabsTrigger>
             <TabsTrigger value="orders" className="gap-2"><Package className="h-4 w-4" />My Orders</TabsTrigger>
             <TabsTrigger value="addresses" className="gap-2"><MapPin className="h-4 w-4" />Addresses</TabsTrigger>
             <TabsTrigger value="profile" className="gap-2"><Settings className="h-4 w-4" />Profile</TabsTrigger>
@@ -115,6 +132,53 @@ const CustomerDashboard = () => {
           {/* Create Delivery */}
           <TabsContent value="create">
             <CreateDeliveryForm onCreated={fetchData} />
+          </TabsContent>
+
+          {/* Live Tracking */}
+          <TabsContent value="tracking">
+            {activeDeliveries.length === 0 ? (
+              <Card className="shadow-card">
+                <CardContent className="flex flex-col items-center py-12">
+                  <Navigation className="mb-4 h-12 w-12 text-muted-foreground/40" />
+                  <p className="text-muted-foreground">No active deliveries to track</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {!trackingDelivery && (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {activeDeliveries.map((d) => (
+                      <Card
+                        key={d.id}
+                        className="shadow-card cursor-pointer hover:border-primary/40 transition-colors"
+                        onClick={() => setTrackingDelivery(d)}
+                      >
+                        <CardContent className="p-4 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Badge className={statusColor(d.status)}>{d.status}</Badge>
+                            {d.estimated_time_mins > 0 && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Clock className="h-3 w-3" />~{d.estimated_time_mins} min
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-medium line-clamp-1">{d.pickup_address}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">→ {d.dropoff_address}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+                {trackingDelivery && (
+                  <div>
+                    <Button variant="ghost" size="sm" className="mb-4" onClick={() => setTrackingDelivery(null)}>
+                      ← Back to all deliveries
+                    </Button>
+                    <CustomerTracking delivery={trackingDelivery} />
+                  </div>
+                )}
+              </div>
+            )}
           </TabsContent>
 
           {/* Orders */}
@@ -142,15 +206,9 @@ const CustomerDashboard = () => {
                           <span>→ {d.dropoff_address?.slice(0, 40)}...</span>
                         </div>
                         <div className="flex gap-3 text-xs text-muted-foreground">
-                          {d.distance_km > 0 && (
-                            <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>
-                          )}
-                          {d.estimated_time_mins > 0 && (
-                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>
-                          )}
-                          {d.package_weight > 0 && (
-                            <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>
-                          )}
+                          {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
+                          {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
+                          {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
                           <span>{new Date(d.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
