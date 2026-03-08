@@ -35,6 +35,7 @@ interface DashboardLayoutProps {
 const driverNav = [
   { title: "nav.available", icon: HandMetal, tab: "available" },
   { title: "nav.myDeliveries", icon: Package, tab: "mydeliveries" },
+  { title: "nav.smartRoute", icon: Route, tab: "smartroute" },
   { title: "nav.pooledRoutes", icon: Layers, tab: "pooled" },
   { title: "nav.earnings", icon: BarChart3, tab: "earnings" },
   { title: "nav.vehicle", icon: Car, tab: "vehicle" },
