@@ -125,6 +125,33 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_checkins: {
+        Row: {
+          checked_in_at: string
+          checked_out_at: string | null
+          device_info: string | null
+          id: string
+          ip_address: string | null
+          user_id: string
+        }
+        Insert: {
+          checked_in_at?: string
+          checked_out_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          user_id: string
+        }
+        Update: {
+          checked_in_at?: string
+          checked_out_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       driver_profiles: {
         Row: {
           created_at: string
@@ -204,6 +231,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          last_login_at: string | null
           mobile: string
           name: string
           updated_at: string
@@ -213,6 +241,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          last_login_at?: string | null
           mobile?: string
           name?: string
           updated_at?: string
@@ -222,6 +251,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          last_login_at?: string | null
           mobile?: string
           name?: string
           updated_at?: string
