@@ -138,6 +138,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.available": "उपलब्ध",
     "nav.myDeliveries": "मेरी डिलीवरी",
     "nav.pooledRoutes": "पूल्ड रूट",
+    "nav.smartRoute": "स्मार्ट रूट",
     "nav.vehicle": "वाहन",
     "nav.profile": "प्रोफ़ाइल",
     "nav.analytics": "एनालिटिक्स",
