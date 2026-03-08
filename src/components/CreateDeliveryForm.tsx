@@ -98,6 +98,8 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       distance_km: distance,
       estimated_time_mins: estTime,
       estimated_cost: pricing?.total || 0,
+      scheduled_date: scheduledDate ? format(scheduledDate, "yyyy-MM-dd") : null,
+      scheduled_time_slot: timeSlot || null,
       status: "pending",
     } as any);
 
