@@ -52,7 +52,7 @@ export default function DeliveryMap({
   onDropoffChange,
 }: DeliveryMapProps) {
   const [clickMode, setClickMode] = useState<"pickup" | "dropoff" | null>(null);
-  const defaultCenter: LatLng = { lat: 12.9716, lng: 77.5946 }; // Bangalore
+  const defaultCenter: LatLng = { lat: 19.2952, lng: 72.8544 }; // Mira-Bhayandar
 
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
