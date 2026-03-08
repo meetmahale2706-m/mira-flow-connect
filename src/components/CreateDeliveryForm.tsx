@@ -110,6 +110,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       setPickupText(""); setDropoffText(""); setWeight("");
       setPickupPos(null); setDropoffPos(null);
       setRoute([]); setDistance(0); setEstTime(0);
+      setScheduledDate(undefined); setTimeSlot("");
       onCreated();
     }
     setSubmitting(false);
