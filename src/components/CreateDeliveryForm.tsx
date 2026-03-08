@@ -6,13 +6,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Navigation, Clock, Ruler, IndianRupee, TrendingUp, Weight, MapPin } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Package, Navigation, Clock, Ruler, IndianRupee, TrendingUp, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import DeliveryMap, { calcDistance, estimateTime, reverseGeocode, fetchRoute } from "@/components/DeliveryMap";
 import { calculateDeliveryPrice } from "@/utils/pricing";
 import AddressSearch from "@/components/AddressSearch";
 
 interface LatLng { lat: number; lng: number; }
+
+const TIME_SLOTS = [
+  { value: "asap", label: "ASAP (Now)" },
+  { value: "morning", label: "Morning (8 AM - 12 PM)" },
+  { value: "afternoon", label: "Afternoon (12 PM - 4 PM)" },
+  { value: "evening", label: "Evening (4 PM - 8 PM)" },
+  { value: "night", label: "Night (8 PM - 11 PM)" },
+];
 
 interface Props {
   onCreated: () => void;
@@ -30,8 +43,9 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
   const [estTime, setEstTime] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [pricing, setPricing] = useState<ReturnType<typeof calculateDeliveryPrice> | null>(null);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [timeSlot, setTimeSlot] = useState("asap");
 
-  // Fetch route when both points set
   useEffect(() => {
     if (pickupPos && dropoffPos) {
       const d = calcDistance(pickupPos, dropoffPos);
@@ -39,13 +53,10 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       setEstTime(estimateTime(d));
       fetchRoute(pickupPos, dropoffPos).then(setRoute);
     } else {
-      setDistance(0);
-      setEstTime(0);
-      setRoute([]);
+      setDistance(0); setEstTime(0); setRoute([]);
     }
   }, [pickupPos, dropoffPos]);
 
-  // Recalculate pricing when distance or weight changes
   useEffect(() => {
     const w = parseFloat(weight);
     if (distance > 0 && w > 0) {
@@ -69,14 +80,8 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pickupPos || !dropoffPos) {
-      toast.error("Please set both pickup and dropoff locations");
-      return;
-    }
-    if (!weight || parseFloat(weight) <= 0) {
-      toast.error("Please enter package weight");
-      return;
-    }
+    if (!pickupPos || !dropoffPos) { toast.error("Please set both pickup and dropoff locations"); return; }
+    if (!weight || parseFloat(weight) <= 0) { toast.error("Please enter package weight"); return; }
 
     setSubmitting(true);
     const { error } = await supabase.from("deliveries").insert({
@@ -91,6 +96,8 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       distance_km: distance,
       estimated_time_mins: estTime,
       estimated_cost: pricing?.total || 0,
+      scheduled_date: scheduledDate ? format(scheduledDate, "yyyy-MM-dd") : null,
+      scheduled_time_slot: timeSlot !== "asap" ? timeSlot : null,
       status: "pending",
     } as any);
 
@@ -101,6 +108,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       setPickupText(""); setDropoffText(""); setWeight("");
       setPickupPos(null); setDropoffPos(null);
       setRoute([]); setDistance(0); setEstTime(0);
+      setScheduledDate(undefined); setTimeSlot("asap");
       onCreated();
     }
     setSubmitting(false);
@@ -139,26 +147,57 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
             </div>
             <div>
               <Label>Package Weight (kg)</Label>
-              <Input
-                type="number"
-                step="0.1"
-                min="0.1"
-                placeholder="e.g. 5.0"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-              />
+              <Input type="number" step="0.1" min="0.1" placeholder="e.g. 5.0" value={weight} onChange={(e) => setWeight(e.target.value)} />
+            </div>
+
+            {/* Scheduling */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Schedule Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !scheduledDate && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {scheduledDate ? format(scheduledDate, "PPP") : "Today (ASAP)"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={scheduledDate}
+                      onSelect={setScheduledDate}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <Label>Time Slot</Label>
+                <Select value={timeSlot} onValueChange={setTimeSlot}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIME_SLOTS.map((slot) => (
+                      <SelectItem key={slot.value} value={slot.value}>{slot.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {distance > 0 && (
               <div className="flex flex-wrap gap-3">
-                <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
-                  <Ruler className="h-3.5 w-3.5" />
-                  {distance} km
-                </Badge>
-                <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
-                  <Clock className="h-3.5 w-3.5" />
-                  ~{estTime} min
-                </Badge>
+                <Badge variant="secondary" className="gap-1.5 px-3 py-1.5"><Ruler className="h-3.5 w-3.5" />{distance} km</Badge>
+                <Badge variant="secondary" className="gap-1.5 px-3 py-1.5"><Clock className="h-3.5 w-3.5" />~{estTime} min</Badge>
+                {scheduledDate && (
+                  <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {format(scheduledDate, "dd MMM")} • {TIME_SLOTS.find(s => s.value === timeSlot)?.label}
+                  </Badge>
+                )}
               </div>
             )}
 

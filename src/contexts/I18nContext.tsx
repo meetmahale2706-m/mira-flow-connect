@@ -42,6 +42,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "Drivers",
     "nav.fuelStats": "Fuel Stats",
     "nav.language": "Language",
+    "nav.support": "Support Chat",
 
     // Driver
     "driver.title": "Driver Dashboard",
@@ -148,6 +149,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "ड्राइवर",
     "nav.fuelStats": "ईंधन आंकड़े",
     "nav.language": "भाषा",
+    "nav.support": "सहायता चैट",
 
     "driver.title": "ड्राइवर डैशबोर्ड",
     "driver.subtitle": "अपने वाहन, उपलब्धता और डिलीवरी प्रबंधित करें",
@@ -250,6 +252,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "चालक",
     "nav.fuelStats": "इंधन आकडेवारी",
     "nav.language": "भाषा",
+    "nav.support": "सहाय्य चॅट",
 
     "driver.title": "चालक डॅशबोर्ड",
     "driver.subtitle": "तुमचे वाहन, उपलब्धता आणि वितरण व्यवस्थापित करा",

@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import CreateDeliveryForm from "@/components/CreateDeliveryForm";
 import CustomerTracking from "@/components/CustomerTracking";
+import DeliveryRating from "@/components/DeliveryRating";
+import SupportChat from "@/components/SupportChat";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -20,6 +22,7 @@ const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("create");
   const [addresses, setAddresses] = useState<any[]>([]);
   const [deliveries, setDeliveries] = useState<any[]>([]);
+  const [ratings, setRatings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [trackingDelivery, setTrackingDelivery] = useState<any>(null);
@@ -46,12 +49,14 @@ const CustomerDashboard = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [aRes, dRes] = await Promise.all([
+    const [aRes, dRes, rRes] = await Promise.all([
       supabase.from("delivery_addresses").select("*").eq("user_id", user!.id).order("created_at"),
       supabase.from("deliveries").select("*").eq("customer_id", user!.id).order("created_at", { ascending: false }),
+      supabase.from("delivery_ratings").select("*").eq("customer_id", user!.id),
     ]);
     if (aRes.data) setAddresses(aRes.data);
     if (dRes.data) setDeliveries(dRes.data);
+    if (rRes.data) setRatings(rRes.data);
     setLoading(false);
   };
 
@@ -99,6 +104,7 @@ const CustomerDashboard = () => {
     }
   };
 
+  const getRating = (deliveryId: string) => ratings.find((r) => r.delivery_id === deliveryId);
   const activeDeliveries = deliveries.filter((d) => ["assigned", "in_transit"].includes(d.status));
 
   if (loading) {
@@ -162,9 +168,9 @@ const CustomerDashboard = () => {
                   <p className="text-muted-foreground">{t("customer.noDeliveries")}</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {deliveries.map((d) => (
-                    <div key={d.id} className="rounded-lg border border-border p-4 space-y-2">
+                    <div key={d.id} className="rounded-lg border border-border p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <MapPin className="h-4 w-4 text-primary" />
@@ -177,8 +183,17 @@ const CustomerDashboard = () => {
                         {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
                         {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
                         {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
+                        {d.estimated_cost > 0 && <span className="font-medium text-primary">₹{d.estimated_cost}</span>}
                         <span>{new Date(d.created_at).toLocaleDateString()}</span>
                       </div>
+                      {/* Rating section for delivered orders */}
+                      {d.status === "delivered" && (
+                        <DeliveryRating
+                          delivery={d}
+                          existingRating={getRating(d.id)}
+                          onRated={fetchData}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -235,6 +250,8 @@ const CustomerDashboard = () => {
             </CardContent>
           </Card>
         )}
+
+        {activeTab === "support" && <SupportChat />}
 
         {activeTab === "profile" && (
           <Card className="max-w-md shadow-card">
