@@ -248,6 +248,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.vehicle": "वाहन",
     "nav.profile": "प्रोफाइल",
     "nav.analytics": "विश्लेषण",
+    "nav.deepAnalytics": "सखोल विश्लेषण",
     "nav.earnings": "कमाई",
     "nav.newDelivery": "नवीन वितरण",
     "nav.tracking": "लाइव ट्रॅकिंग",
