@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, MessageCircle } from "lucide-react";
+import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, MessageCircle, Route } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -35,6 +35,7 @@ interface DashboardLayoutProps {
 const driverNav = [
   { title: "nav.available", icon: HandMetal, tab: "available" },
   { title: "nav.myDeliveries", icon: Package, tab: "mydeliveries" },
+  { title: "nav.smartRoute", icon: Route, tab: "smartroute" },
   { title: "nav.pooledRoutes", icon: Layers, tab: "pooled" },
   { title: "nav.earnings", icon: BarChart3, tab: "earnings" },
   { title: "nav.vehicle", icon: Car, tab: "vehicle" },

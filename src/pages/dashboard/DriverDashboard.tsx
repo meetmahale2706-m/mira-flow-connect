@@ -18,6 +18,7 @@ import DeliveryMap, { fetchRoute } from "@/components/DeliveryMap";
 import DriverEarnings from "@/components/DriverEarnings";
 import SupportChat from "@/components/SupportChat";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
+import SmartRouteOptimizer from "@/components/SmartRouteOptimizer";
 
 interface LatLng { lat: number; lng: number; }
 
@@ -301,6 +302,22 @@ const DriverDashboard = () => {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Smart Route Optimization */}
+        {activeTab === "smartroute" && (
+          <SmartRouteOptimizer
+            deliveries={pendingDeliveries}
+            fuelEfficiency={driverProfile?.fuel_efficiency || 0}
+            onAcceptDelivery={handleAcceptDelivery}
+            onAcceptMultiple={async (dels) => {
+              for (const d of dels) {
+                await supabase.from("deliveries").update({ driver_id: user!.id, status: "assigned" }).eq("id", d.id).eq("status", "pending");
+              }
+              toast.success(`Accepted ${dels.length} optimized deliveries!`);
+              fetchData();
+            }}
+          />
         )}
 
         {/* Pooled Routes */}
