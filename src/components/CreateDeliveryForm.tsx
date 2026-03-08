@@ -159,6 +159,47 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
               />
             </div>
 
+            {/* Scheduling */}
+            <div className="rounded-lg border border-border p-3 space-y-3">
+              <Label className="flex items-center gap-1.5 text-sm font-medium">
+                <CalendarDays className="h-4 w-4 text-primary" />
+                Schedule Delivery (optional)
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("justify-start text-left font-normal", !scheduledDate && "text-muted-foreground")}>
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      {scheduledDate ? format(scheduledDate, "PPP") : "Pick date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={scheduledDate}
+                      onSelect={setScheduledDate}
+                      disabled={(d) => d < new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <Select value={timeSlot} onValueChange={setTimeSlot}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Time slot" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="6am-9am">6:00 AM - 9:00 AM</SelectItem>
+                    <SelectItem value="9am-12pm">9:00 AM - 12:00 PM</SelectItem>
+                    <SelectItem value="12pm-3pm">12:00 PM - 3:00 PM</SelectItem>
+                    <SelectItem value="3pm-6pm">3:00 PM - 6:00 PM</SelectItem>
+                    <SelectItem value="6pm-9pm">6:00 PM - 9:00 PM</SelectItem>
+                    <SelectItem value="9pm-12am">9:00 PM - 12:00 AM</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             {distance > 0 && (
               <div className="flex flex-wrap gap-3">
                 <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
