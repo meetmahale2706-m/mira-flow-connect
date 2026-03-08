@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, Bell } from "lucide-react";
+import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, Bell, CalendarCheck } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { Badge } from "@/components/ui/badge";
 import {
