@@ -8,11 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, MapPin, Plus, Trash2, Star, Search, Ruler, Clock, Navigation } from "lucide-react";
+import { Package, MapPin, Plus, Trash2, Star, Search, Ruler, Clock, Navigation, IndianRupee, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import CreateDeliveryForm from "@/components/CreateDeliveryForm";
 import CustomerTracking from "@/components/CustomerTracking";
+import RatingDialog from "@/components/RatingDialog";
+import SupportChat from "@/components/SupportChat";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -23,6 +25,8 @@ const CustomerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [trackingDelivery, setTrackingDelivery] = useState<any>(null);
+  const [ratingDelivery, setRatingDelivery] = useState<any>(null);
+  const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
 
   const [name, setName] = useState(profile?.name || "");
   const [mobile, setMobile] = useState(profile?.mobile || "");
@@ -46,12 +50,14 @@ const CustomerDashboard = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [aRes, dRes] = await Promise.all([
+    const [aRes, dRes, rRes] = await Promise.all([
       supabase.from("delivery_addresses").select("*").eq("user_id", user!.id).order("created_at"),
       supabase.from("deliveries").select("*").eq("customer_id", user!.id).order("created_at", { ascending: false }),
+      supabase.from("delivery_ratings").select("delivery_id").eq("customer_id", user!.id),
     ]);
     if (aRes.data) setAddresses(aRes.data);
     if (dRes.data) setDeliveries(dRes.data);
+    if (rRes.data) setRatedIds(new Set((rRes.data as any[]).map((r: any) => r.delivery_id)));
     setLoading(false);
   };
 
@@ -173,12 +179,22 @@ const CustomerDashboard = () => {
                         <Badge className={statusColor(d.status)}>{d.status}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">→ {d.dropoff_address?.slice(0, 40)}...</p>
-                      <div className="flex gap-3 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                         {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
                         {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
                         {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
+                        {(d as any).estimated_cost > 0 && <span className="flex items-center gap-1 font-medium text-primary"><IndianRupee className="h-3 w-3" />₹{(d as any).estimated_cost}</span>}
+                        {(d as any).scheduled_date && <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{(d as any).scheduled_date} {(d as any).scheduled_time_slot}</span>}
                         <span>{new Date(d.created_at).toLocaleDateString()}</span>
                       </div>
+                      {d.status === "delivered" && d.driver_id && !ratedIds.has(d.id) && (
+                        <Button variant="outline" size="sm" className="gap-1.5 mt-1" onClick={() => setRatingDelivery(d)}>
+                          <Star className="h-3.5 w-3.5" /> Rate Delivery
+                        </Button>
+                      )}
+                      {ratedIds.has(d.id) && (
+                        <Badge variant="secondary" className="gap-1 text-xs"><Star className="h-3 w-3" /> Rated</Badge>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -236,6 +252,8 @@ const CustomerDashboard = () => {
           </Card>
         )}
 
+        {activeTab === "support" && <SupportChat />}
+
         {activeTab === "profile" && (
           <Card className="max-w-md shadow-card">
             <CardHeader><CardTitle className="font-display">{t("customer.editProfile")}</CardTitle></CardHeader>
@@ -247,6 +265,13 @@ const CustomerDashboard = () => {
             </CardContent>
           </Card>
         )}
+
+        <RatingDialog
+          delivery={ratingDelivery}
+          open={!!ratingDelivery}
+          onClose={() => setRatingDelivery(null)}
+          onRated={fetchData}
+        />
       </div>
     </DashboardLayout>
   );

@@ -42,6 +42,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "Drivers",
     "nav.fuelStats": "Fuel Stats",
     "nav.checkin": "Check-In",
+    "nav.support": "AI Support",
+    "nav.leaderboard": "Leaderboard",
     "nav.language": "Language",
 
     // Driver
@@ -149,6 +151,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "ड्राइवर",
     "nav.fuelStats": "ईंधन आंकड़े",
     "nav.checkin": "चेक-इन",
+    "nav.support": "AI सहायता",
+    "nav.leaderboard": "लीडरबोर्ड",
     "nav.language": "भाषा",
 
     "driver.title": "ड्राइवर डैशबोर्ड",
@@ -252,6 +256,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "चालक",
     "nav.fuelStats": "इंधन आकडेवारी",
     "nav.checkin": "चेक-इन",
+    "nav.support": "AI सहाय्य",
+    "nav.leaderboard": "लीडरबोर्ड",
     "nav.language": "भाषा",
 
     "driver.title": "चालक डॅशबोर्ड",
