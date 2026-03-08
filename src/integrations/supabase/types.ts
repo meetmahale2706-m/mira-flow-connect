@@ -34,6 +34,7 @@ export type Database = {
           pickup_address: string
           pickup_lat: number | null
           pickup_lng: number | null
+          proof_photo_url: string | null
           scheduled_date: string | null
           scheduled_time_slot: string | null
           started_at: string | null
@@ -59,6 +60,7 @@ export type Database = {
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
+          proof_photo_url?: string | null
           scheduled_date?: string | null
           scheduled_time_slot?: string | null
           started_at?: string | null
@@ -84,6 +86,7 @@ export type Database = {
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
+          proof_photo_url?: string | null
           scheduled_date?: string | null
           scheduled_time_slot?: string | null
           started_at?: string | null
