@@ -50,12 +50,14 @@ const CustomerDashboard = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [aRes, dRes] = await Promise.all([
+    const [aRes, dRes, rRes] = await Promise.all([
       supabase.from("delivery_addresses").select("*").eq("user_id", user!.id).order("created_at"),
       supabase.from("deliveries").select("*").eq("customer_id", user!.id).order("created_at", { ascending: false }),
+      supabase.from("delivery_ratings").select("delivery_id").eq("customer_id", user!.id),
     ]);
     if (aRes.data) setAddresses(aRes.data);
     if (dRes.data) setDeliveries(dRes.data);
+    if (rRes.data) setRatedIds(new Set((rRes.data as any[]).map((r: any) => r.delivery_id)));
     setLoading(false);
   };
 
