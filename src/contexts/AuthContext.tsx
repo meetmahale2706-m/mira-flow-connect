@@ -5,6 +5,13 @@ import { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
+// Session duration by role
+const SESSION_DURATION: Record<string, number> = {
+  driver: 24 * 60 * 60 * 1000,      // 24 hours
+  customer: 30 * 24 * 60 * 60 * 1000, // 30 days
+  admin: 30 * 24 * 60 * 60 * 1000,    // 30 days
+};
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
@@ -39,15 +46,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     ]);
     if (profileRes.data) setProfile(profileRes.data);
     if (roleRes.data) setRole(roleRes.data);
+    return { profile: profileRes.data, role: roleRes.data };
+  };
+
+  const checkSessionExpiry = (userRole: AppRole | null, lastLogin: string | null) => {
+    if (!userRole || !lastLogin) return false;
+    const maxDuration = SESSION_DURATION[userRole] || SESSION_DURATION.customer;
+    const loginTime = new Date(lastLogin).getTime();
+    const elapsed = Date.now() - loginTime;
+    return elapsed > maxDuration;
+  };
+
+  const recordLogin = async (userId: string) => {
+    await supabase.from("profiles").update({ last_login_at: new Date().toISOString() } as any).eq("user_id", userId);
+    localStorage.setItem("miralink-last-login", new Date().toISOString());
   };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => fetchUserData(session.user.id), 0);
+          const userData = await fetchUserData(session.user.id);
+
+          // On sign in, record the login time
+          if (event === "SIGNED_IN") {
+            await recordLogin(session.user.id);
+          }
+
+          // Check session expiry based on role
+          const lastLogin = localStorage.getItem("miralink-last-login") || (userData.profile as any)?.last_login_at;
+          if (userData.role && checkSessionExpiry(userData.role, lastLogin)) {
+            await supabase.auth.signOut();
+            setSession(null);
+            setUser(null);
+            setRole(null);
+            setProfile(null);
+            localStorage.removeItem("miralink-last-login");
+            setLoading(false);
+            return;
+          }
         } else {
           setRole(null);
           setProfile(null);
@@ -56,11 +95,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserData(session.user.id);
+        const userData = await fetchUserData(session.user.id);
+        
+        const lastLogin = localStorage.getItem("miralink-last-login") || (userData.profile as any)?.last_login_at;
+        if (userData.role && checkSessionExpiry(userData.role, lastLogin)) {
+          await supabase.auth.signOut();
+          setSession(null);
+          setUser(null);
+          setRole(null);
+          setProfile(null);
+          localStorage.removeItem("miralink-last-login");
+        }
       }
       setLoading(false);
     });
@@ -74,6 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setRole(null);
     setProfile(null);
+    localStorage.removeItem("miralink-last-login");
   };
 
   return (
