@@ -21,6 +21,9 @@ export type Database = {
           customer_id: string | null
           distance_km: number | null
           driver_id: string | null
+          driver_lat: number | null
+          driver_lng: number | null
+          driver_location_updated_at: string | null
           dropoff_address: string
           dropoff_lat: number | null
           dropoff_lng: number | null
@@ -40,6 +43,9 @@ export type Database = {
           customer_id?: string | null
           distance_km?: number | null
           driver_id?: string | null
+          driver_lat?: number | null
+          driver_lng?: number | null
+          driver_location_updated_at?: string | null
           dropoff_address?: string
           dropoff_lat?: number | null
           dropoff_lng?: number | null
@@ -59,6 +65,9 @@ export type Database = {
           customer_id?: string | null
           distance_km?: number | null
           driver_id?: string | null
+          driver_lat?: number | null
+          driver_lng?: number | null
+          driver_location_updated_at?: string | null
           dropoff_address?: string
           dropoff_lat?: number | null
           dropoff_lng?: number | null
