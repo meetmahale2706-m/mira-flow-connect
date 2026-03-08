@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import DeliveryMap, { fetchRoute } from "@/components/DeliveryMap";
 import DriverEarnings from "@/components/DriverEarnings";
+import DriverCheckIn from "@/components/DriverCheckIn";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
 
 interface LatLng { lat: number; lng: number; }
