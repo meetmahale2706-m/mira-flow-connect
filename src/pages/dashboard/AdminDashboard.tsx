@@ -306,6 +306,9 @@ const AdminDashboard = () => {
           </Card>
         )}
 
+        {/* Leaderboard */}
+        {activeTab === "leaderboard" && <DriverLeaderboard />}
+
         {/* Analytics */}
         {activeTab === "analytics" && (
           <div className="space-y-6">
