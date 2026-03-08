@@ -251,6 +251,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.users": "सर्व वापरकर्ते",
     "nav.drivers": "चालक",
     "nav.fuelStats": "इंधन आकडेवारी",
+    "nav.checkin": "चेक-इन",
     "nav.language": "भाषा",
 
     "driver.title": "चालक डॅशबोर्ड",
