@@ -90,8 +90,9 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       package_weight: parseFloat(weight),
       distance_km: distance,
       estimated_time_mins: estTime,
+      estimated_cost: pricing?.total || 0,
       status: "pending",
-    });
+    } as any);
 
     if (error) {
       toast.error(error.message);
