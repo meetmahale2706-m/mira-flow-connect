@@ -45,6 +45,16 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
     }
   }, [pickupPos, dropoffPos]);
 
+  // Recalculate pricing when distance or weight changes
+  useEffect(() => {
+    const w = parseFloat(weight);
+    if (distance > 0 && w > 0) {
+      setPricing(calculateDeliveryPrice(distance, w));
+    } else {
+      setPricing(null);
+    }
+  }, [distance, weight]);
+
   const handlePickupFromMap = async (pos: LatLng) => {
     setPickupPos(pos);
     const addr = await reverseGeocode(pos.lat, pos.lng);
