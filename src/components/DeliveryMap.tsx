@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix default marker icons
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -42,44 +42,6 @@ interface DeliveryMapProps {
   onDropoffChange?: (pos: LatLng) => void;
 }
 
-function FitBounds({ pickup, dropoff }: { pickup?: LatLng | null; dropoff?: LatLng | null }) {
-  const map = useMap();
-  useEffect(() => {
-    if (pickup && dropoff) {
-      const bounds = L.latLngBounds([pickup, dropoff]);
-      map.fitBounds(bounds, { padding: [50, 50] });
-    } else if (pickup) {
-      map.setView(pickup, 14);
-    } else if (dropoff) {
-      map.setView(dropoff, 14);
-    }
-  }, [pickup, dropoff, map]);
-  return null;
-}
-
-function ClickHandler({
-  mode,
-  onPickup,
-  onDropoff,
-}: {
-  mode: "pickup" | "dropoff" | null;
-  onPickup?: (pos: LatLng) => void;
-  onDropoff?: (pos: LatLng) => void;
-}) {
-  const map = useMap();
-  useEffect(() => {
-    if (!mode) return;
-    const handler = (e: L.LeafletMouseEvent) => {
-      const pos = { lat: e.latlng.lat, lng: e.latlng.lng };
-      if (mode === "pickup" && onPickup) onPickup(pos);
-      if (mode === "dropoff" && onDropoff) onDropoff(pos);
-    };
-    map.on("click", handler);
-    return () => { map.off("click", handler); };
-  }, [mode, onPickup, onDropoff, map]);
-  return null;
-}
-
 export default function DeliveryMap({
   pickup,
   dropoff,
@@ -92,17 +54,138 @@ export default function DeliveryMap({
   const [clickMode, setClickMode] = useState<"pickup" | "dropoff" | null>(null);
   const defaultCenter: LatLng = { lat: 12.9716, lng: 77.5946 }; // Bangalore
 
+  const mapElementRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const pickupMarkerRef = useRef<L.Marker | null>(null);
+  const dropoffMarkerRef = useRef<L.Marker | null>(null);
+  const routeLineRef = useRef<L.Polyline | null>(null);
+
+  // Initialize map once
+  useEffect(() => {
+    if (!mapElementRef.current || mapRef.current) return;
+
+    const map = L.map(mapElementRef.current, {
+      center: [defaultCenter.lat, defaultCenter.lng],
+      zoom: 12,
+      scrollWheelZoom: true,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Resize/focus map when data changes (helps when shown inside tabs)
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const timer = setTimeout(() => mapRef.current?.invalidateSize(), 0);
+    return () => clearTimeout(timer);
+  }, [height, pickup, dropoff, route]);
+
+  // Keep view in sync
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (pickup && dropoff) {
+      const bounds = L.latLngBounds([pickup, dropoff]);
+      map.fitBounds(bounds, { padding: [50, 50] });
+      return;
+    }
+
+    if (pickup) {
+      map.setView([pickup.lat, pickup.lng], 14);
+      return;
+    }
+
+    if (dropoff) {
+      map.setView([dropoff.lat, dropoff.lng], 14);
+    }
+  }, [pickup, dropoff]);
+
+  // Keep markers in sync
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (pickup) {
+      if (!pickupMarkerRef.current) {
+        pickupMarkerRef.current = L.marker([pickup.lat, pickup.lng], { icon: pickupIcon }).addTo(map);
+        pickupMarkerRef.current.bindPopup("Pickup Location");
+      } else {
+        pickupMarkerRef.current.setLatLng([pickup.lat, pickup.lng]);
+      }
+    } else if (pickupMarkerRef.current) {
+      map.removeLayer(pickupMarkerRef.current);
+      pickupMarkerRef.current = null;
+    }
+
+    if (dropoff) {
+      if (!dropoffMarkerRef.current) {
+        dropoffMarkerRef.current = L.marker([dropoff.lat, dropoff.lng], { icon: dropoffIcon }).addTo(map);
+        dropoffMarkerRef.current.bindPopup("Dropoff Location");
+      } else {
+        dropoffMarkerRef.current.setLatLng([dropoff.lat, dropoff.lng]);
+      }
+    } else if (dropoffMarkerRef.current) {
+      map.removeLayer(dropoffMarkerRef.current);
+      dropoffMarkerRef.current = null;
+    }
+  }, [pickup, dropoff]);
+
+  // Keep route polyline in sync
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (routeLineRef.current) {
+      map.removeLayer(routeLineRef.current);
+      routeLineRef.current = null;
+    }
+
+    if (route && route.length > 1) {
+      routeLineRef.current = L.polyline(
+        route.map((p) => [p.lat, p.lng] as [number, number]),
+        { color: "hsl(174, 62%, 38%)", weight: 4, opacity: 0.8 }
+      ).addTo(map);
+    }
+  }, [route]);
+
+  // Interactive click-to-set points
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !interactive || !clickMode) return;
+
+    const handler = (e: L.LeafletMouseEvent) => {
+      const pos = { lat: e.latlng.lat, lng: e.latlng.lng };
+      if (clickMode === "pickup") onPickupChange?.(pos);
+      if (clickMode === "dropoff") onDropoffChange?.(pos);
+    };
+
+    map.on("click", handler);
+    return () => {
+      map.off("click", handler);
+    };
+  }, [interactive, clickMode, onPickupChange, onDropoffChange]);
+
   return (
     <div className="relative">
       {interactive && (
-        <div className="absolute top-2 left-12 z-[1000] flex gap-2">
+        <div className="absolute left-12 top-2 z-[1000] flex gap-2">
           <button
             type="button"
             onClick={() => setClickMode(clickMode === "pickup" ? null : "pickup")}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium shadow-card transition-colors ${
               clickMode === "pickup"
                 ? "bg-primary text-primary-foreground"
-                : "bg-card text-card-foreground border border-border"
+                : "border border-border bg-card text-card-foreground"
             }`}
           >
             📍 Set Pickup
@@ -113,48 +196,18 @@ export default function DeliveryMap({
             className={`rounded-lg px-3 py-1.5 text-xs font-medium shadow-card transition-colors ${
               clickMode === "dropoff"
                 ? "bg-destructive text-destructive-foreground"
-                : "bg-card text-card-foreground border border-border"
+                : "border border-border bg-card text-card-foreground"
             }`}
           >
             🏁 Set Dropoff
           </button>
         </div>
       )}
-      <MapContainer
-        center={pickup || dropoff || defaultCenter}
-        zoom={12}
+
+      <div
+        ref={mapElementRef}
         style={{ height, width: "100%", borderRadius: "var(--radius)", zIndex: 1 }}
-        scrollWheelZoom
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <FitBounds pickup={pickup} dropoff={dropoff} />
-        {interactive && (
-          <ClickHandler
-            mode={clickMode}
-            onPickup={onPickupChange}
-            onDropoff={onDropoffChange}
-          />
-        )}
-        {pickup && (
-          <Marker position={pickup} icon={pickupIcon}>
-            <Popup>Pickup Location</Popup>
-          </Marker>
-        )}
-        {dropoff && (
-          <Marker position={dropoff} icon={dropoffIcon}>
-            <Popup>Dropoff Location</Popup>
-          </Marker>
-        )}
-        {route && route.length > 1 && (
-          <Polyline
-            positions={route}
-            pathOptions={{ color: "hsl(174, 62%, 38%)", weight: 4, opacity: 0.8 }}
-          />
-        )}
-      </MapContainer>
+      />
     </div>
   );
 }
@@ -217,3 +270,4 @@ export async function fetchRoute(pickup: LatLng, dropoff: LatLng): Promise<LatLn
   } catch {}
   return [pickup, dropoff];
 }
+
