@@ -14,6 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
+      deliveries: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          driver_id: string | null
+          dropoff_address: string
+          id: string
+          pickup_address: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          driver_id?: string | null
+          dropoff_address?: string
+          id?: string
+          pickup_address?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          driver_id?: string | null
+          dropoff_address?: string
+          id?: string
+          pickup_address?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      delivery_addresses: {
+        Row: {
+          address_line: string
+          city: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          pincode: string
+          state: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_line?: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          pincode?: string
+          state?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_line?: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          pincode?: string
+          state?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      driver_profiles: {
+        Row: {
+          created_at: string
+          fuel_efficiency: number | null
+          id: string
+          is_available: boolean
+          updated_at: string
+          user_id: string
+          vehicle_number: string
+          vehicle_type: string
+        }
+        Insert: {
+          created_at?: string
+          fuel_efficiency?: number | null
+          id?: string
+          is_available?: boolean
+          updated_at?: string
+          user_id: string
+          vehicle_number?: string
+          vehicle_type?: string
+        }
+        Update: {
+          created_at?: string
+          fuel_efficiency?: number | null
+          id?: string
+          is_available?: boolean
+          updated_at?: string
+          user_id?: string
+          vehicle_number?: string
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
