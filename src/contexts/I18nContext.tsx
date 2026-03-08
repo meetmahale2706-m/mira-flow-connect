@@ -30,6 +30,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.available": "Available",
     "nav.myDeliveries": "My Deliveries",
     "nav.pooledRoutes": "Pooled Routes",
+    "nav.smartRoute": "Smart Route",
     "nav.vehicle": "Vehicle",
     "nav.profile": "Profile",
     "nav.analytics": "Analytics",
