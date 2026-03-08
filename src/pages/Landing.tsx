@@ -7,6 +7,7 @@ import {
   Globe, Layers, Brain, Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /* ─── Animated counter ─── */
 function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
@@ -108,7 +109,8 @@ const Landing = () => {
             <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
             <a href="#key-points" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Key Points</a>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="ghost" asChild>
               <Link to="/login">Sign In</Link>
             </Button>
