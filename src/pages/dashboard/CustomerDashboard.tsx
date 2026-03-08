@@ -1,21 +1,23 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, MapPin, Plus, Trash2, Star, Settings, Search, Ruler, Clock, Navigation } from "lucide-react";
+import { Package, MapPin, Plus, Trash2, Star, Search, Ruler, Clock, Navigation } from "lucide-react";
 import { toast } from "sonner";
-import DashboardNav from "@/components/DashboardNav";
+import DashboardLayout from "@/components/DashboardLayout";
 import CreateDeliveryForm from "@/components/CreateDeliveryForm";
 import CustomerTracking from "@/components/CustomerTracking";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
+  const { t } = useI18n();
+  const [activeTab, setActiveTab] = useState("create");
   const [addresses, setAddresses] = useState<any[]>([]);
   const [deliveries, setDeliveries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +26,6 @@ const CustomerDashboard = () => {
 
   const [name, setName] = useState(profile?.name || "");
   const [mobile, setMobile] = useState(profile?.mobile || "");
-
   const [addrLabel, setAddrLabel] = useState("Home");
   const [addrLine, setAddrLine] = useState("");
   const [addrCity, setAddrCity] = useState("");
@@ -34,14 +35,11 @@ const CustomerDashboard = () => {
   useEffect(() => { if (user) fetchData(); }, [user]);
   useEffect(() => { if (profile) { setName(profile.name); setMobile(profile.mobile); } }, [profile]);
 
-  // Realtime updates for deliveries
   useEffect(() => {
     if (!user) return;
     const channel = supabase
       .channel("customer-deliveries")
-      .on("postgres_changes", { event: "*", schema: "public", table: "deliveries", filter: `customer_id=eq.${user.id}` }, () => {
-        fetchData();
-      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "deliveries", filter: `customer_id=eq.${user.id}` }, () => fetchData())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
@@ -97,8 +95,6 @@ const CustomerDashboard = () => {
       case "delivered": return "bg-primary/10 text-primary";
       case "in_transit": return "bg-accent/20 text-accent-foreground";
       case "assigned": return "bg-blue-100 text-blue-700";
-      case "cancelled": return "bg-destructive/10 text-destructive";
-      case "pending": return "bg-muted text-muted-foreground";
       default: return "bg-muted text-muted-foreground";
     }
   };
@@ -114,182 +110,145 @@ const CustomerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardNav role="customer" name={profile?.name || "Customer"} onSignOut={signOut} />
-      <div className="container py-8">
-        <h1 className="mb-2 font-display text-3xl font-bold">Customer Dashboard</h1>
-        <p className="mb-8 text-muted-foreground">Create deliveries, manage addresses, and track orders</p>
+    <DashboardLayout role="customer" name={profile?.name || "Customer"} onSignOut={signOut} activeTab={activeTab} onTabChange={setActiveTab}>
+      <div className="p-6">
+        <h1 className="mb-1 font-display text-2xl font-bold">{t("customer.title")}</h1>
+        <p className="mb-6 text-sm text-muted-foreground">{t("customer.subtitle")}</p>
 
-        <Tabs defaultValue="create" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="create" className="gap-2"><Plus className="h-4 w-4" />New Delivery</TabsTrigger>
-            <TabsTrigger value="tracking" className="gap-2"><Navigation className="h-4 w-4" />Live Tracking ({activeDeliveries.length})</TabsTrigger>
-            <TabsTrigger value="orders" className="gap-2"><Package className="h-4 w-4" />My Orders</TabsTrigger>
-            <TabsTrigger value="addresses" className="gap-2"><MapPin className="h-4 w-4" />Addresses</TabsTrigger>
-            <TabsTrigger value="profile" className="gap-2"><Settings className="h-4 w-4" />Profile</TabsTrigger>
-          </TabsList>
+        {activeTab === "create" && <CreateDeliveryForm onCreated={fetchData} />}
 
-          {/* Create Delivery */}
-          <TabsContent value="create">
-            <CreateDeliveryForm onCreated={fetchData} />
-          </TabsContent>
-
-          {/* Live Tracking */}
-          <TabsContent value="tracking">
-            {activeDeliveries.length === 0 ? (
-              <Card className="shadow-card">
-                <CardContent className="flex flex-col items-center py-12">
-                  <Navigation className="mb-4 h-12 w-12 text-muted-foreground/40" />
-                  <p className="text-muted-foreground">No active deliveries to track</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                {!trackingDelivery && (
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {activeDeliveries.map((d) => (
-                      <Card
-                        key={d.id}
-                        className="shadow-card cursor-pointer hover:border-primary/40 transition-colors"
-                        onClick={() => setTrackingDelivery(d)}
-                      >
-                        <CardContent className="p-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Badge className={statusColor(d.status)}>{d.status}</Badge>
-                            {d.estimated_time_mins > 0 && (
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Clock className="h-3 w-3" />~{d.estimated_time_mins} min
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm font-medium line-clamp-1">{d.pickup_address}</p>
-                          <p className="text-xs text-muted-foreground line-clamp-1">→ {d.dropoff_address}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-                {trackingDelivery && (
-                  <div>
-                    <Button variant="ghost" size="sm" className="mb-4" onClick={() => setTrackingDelivery(null)}>
-                      ← Back to all deliveries
-                    </Button>
-                    <CustomerTracking delivery={trackingDelivery} />
-                  </div>
-                )}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Orders */}
-          <TabsContent value="orders">
+        {activeTab === "tracking" && (
+          activeDeliveries.length === 0 ? (
             <Card className="shadow-card">
-              <CardHeader><CardTitle className="font-display">My Deliveries</CardTitle></CardHeader>
-              <CardContent>
-                {deliveries.length === 0 ? (
-                  <div className="flex flex-col items-center py-12">
-                    <Search className="mb-4 h-12 w-12 text-muted-foreground/40" />
-                    <p className="text-muted-foreground">No deliveries yet. Create your first one!</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {deliveries.map((d) => (
-                      <div key={d.id} className="rounded-lg border border-border p-4 space-y-2">
+              <CardContent className="flex flex-col items-center py-12">
+                <Navigation className="mb-4 h-12 w-12 text-muted-foreground/40" />
+                <p className="text-muted-foreground">{t("customer.noTracking")}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6">
+              {!trackingDelivery ? (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {activeDeliveries.map((d) => (
+                    <Card key={d.id} className="shadow-card cursor-pointer hover:border-primary/40 transition-colors" onClick={() => setTrackingDelivery(d)}>
+                      <CardContent className="p-4 space-y-2">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-medium">{d.pickup_address?.slice(0, 40)}...</span>
-                          </div>
                           <Badge className={statusColor(d.status)}>{d.status}</Badge>
+                          {d.estimated_time_mins > 0 && <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>→ {d.dropoff_address?.slice(0, 40)}...</span>
-                        </div>
-                        <div className="flex gap-3 text-xs text-muted-foreground">
-                          {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
-                          {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
-                          {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
-                          <span>{new Date(d.created_at).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                        <p className="text-sm font-medium line-clamp-1">{d.pickup_address}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-1">→ {d.dropoff_address}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  <Button variant="ghost" size="sm" className="mb-4" onClick={() => setTrackingDelivery(null)}>← Back</Button>
+                  <CustomerTracking delivery={trackingDelivery} />
+                </div>
+              )}
+            </div>
+          )
+        )}
 
-          {/* Addresses */}
-          <TabsContent value="addresses">
-            <Card className="shadow-card">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="font-display">Delivery Addresses</CardTitle>
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="gap-1"><Plus className="h-4 w-4" />Add Address</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader><DialogTitle>Add New Address</DialogTitle></DialogHeader>
-                    <form onSubmit={handleAddAddress} className="space-y-4">
-                      <div><Label>Label</Label><Input placeholder="Home, Office..." value={addrLabel} onChange={(e) => setAddrLabel(e.target.value)} required /></div>
-                      <div><Label>Address Line</Label><Input placeholder="123 Main Street" value={addrLine} onChange={(e) => setAddrLine(e.target.value)} required /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div><Label>City</Label><Input placeholder="Bangalore" value={addrCity} onChange={(e) => setAddrCity(e.target.value)} required /></div>
-                        <div><Label>State</Label><Input placeholder="Karnataka" value={addrState} onChange={(e) => setAddrState(e.target.value)} required /></div>
-                      </div>
-                      <div><Label>Pincode</Label><Input placeholder="560001" value={addrPincode} onChange={(e) => setAddrPincode(e.target.value)} required /></div>
-                      <Button type="submit" className="w-full">Save Address</Button>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                {addresses.length === 0 ? (
-                  <p className="py-8 text-center text-muted-foreground">No addresses saved yet</p>
-                ) : (
-                  <div className="space-y-3">
-                    {addresses.map((a) => (
-                      <div key={a.id} className="flex items-start justify-between rounded-lg border border-border p-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold">{a.label}</span>
-                            {a.is_default && <Badge className="bg-primary/10 text-primary text-xs">Default</Badge>}
-                          </div>
-                          <p className="text-sm text-muted-foreground">{a.address_line}, {a.city}, {a.state} - {a.pincode}</p>
+        {activeTab === "orders" && (
+          <Card className="shadow-card">
+            <CardHeader><CardTitle className="font-display">{t("customer.myDeliveries")}</CardTitle></CardHeader>
+            <CardContent>
+              {deliveries.length === 0 ? (
+                <div className="flex flex-col items-center py-12">
+                  <Search className="mb-4 h-12 w-12 text-muted-foreground/40" />
+                  <p className="text-muted-foreground">{t("customer.noDeliveries")}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {deliveries.map((d) => (
+                    <div key={d.id} className="rounded-lg border border-border p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium">{d.pickup_address?.slice(0, 40)}...</span>
                         </div>
-                        <div className="flex gap-2">
-                          {!a.is_default && (
-                            <Button variant="ghost" size="icon" onClick={() => handleSetDefault(a.id)} title="Set as default">
-                              <Star className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteAddress(a.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
+                        <Badge className={statusColor(d.status)}>{d.status}</Badge>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                      <p className="text-sm text-muted-foreground">→ {d.dropoff_address?.slice(0, 40)}...</p>
+                      <div className="flex gap-3 text-xs text-muted-foreground">
+                        {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
+                        {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
+                        {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
+                        <span>{new Date(d.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Profile */}
-          <TabsContent value="profile">
-            <Card className="max-w-md shadow-card">
-              <CardHeader><CardTitle className="font-display">Edit Profile</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
-                <div><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-                <div><Label>Email</Label><Input value={profile?.email || ""} disabled /></div>
-                <div><Label>Mobile</Label><Input value={mobile} onChange={(e) => setMobile(e.target.value)} /></div>
-                <Button onClick={handleSaveProfile}>Save Changes</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {activeTab === "addresses" && (
+          <Card className="shadow-card">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="font-display">{t("customer.deliveryAddresses")}</CardTitle>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-1"><Plus className="h-4 w-4" />{t("customer.addAddress")}</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader><DialogTitle>{t("customer.addAddress")}</DialogTitle></DialogHeader>
+                  <form onSubmit={handleAddAddress} className="space-y-4">
+                    <div><Label>Label</Label><Input placeholder="Home, Office..." value={addrLabel} onChange={(e) => setAddrLabel(e.target.value)} required /></div>
+                    <div><Label>Address Line</Label><Input placeholder="123 Main Street" value={addrLine} onChange={(e) => setAddrLine(e.target.value)} required /></div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><Label>City</Label><Input placeholder="Mira-Bhayandar" value={addrCity} onChange={(e) => setAddrCity(e.target.value)} required /></div>
+                      <div><Label>State</Label><Input placeholder="Maharashtra" value={addrState} onChange={(e) => setAddrState(e.target.value)} required /></div>
+                    </div>
+                    <div><Label>Pincode</Label><Input placeholder="401107" value={addrPincode} onChange={(e) => setAddrPincode(e.target.value)} required /></div>
+                    <Button type="submit" className="w-full">{t("common.save")}</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              {addresses.length === 0 ? (
+                <p className="py-8 text-center text-muted-foreground">{t("customer.noAddresses")}</p>
+              ) : (
+                <div className="space-y-3">
+                  {addresses.map((a) => (
+                    <div key={a.id} className="flex items-start justify-between rounded-lg border border-border p-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{a.label}</span>
+                          {a.is_default && <Badge className="bg-primary/10 text-primary text-xs">Default</Badge>}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{a.address_line}, {a.city}, {a.state} - {a.pincode}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        {!a.is_default && <Button variant="ghost" size="icon" onClick={() => handleSetDefault(a.id)}><Star className="h-4 w-4" /></Button>}
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteAddress(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === "profile" && (
+          <Card className="max-w-md shadow-card">
+            <CardHeader><CardTitle className="font-display">{t("customer.editProfile")}</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+              <div><Label>Email</Label><Input value={profile?.email || ""} disabled /></div>
+              <div><Label>Mobile</Label><Input value={mobile} onChange={(e) => setMobile(e.target.value)} /></div>
+              <Button onClick={handleSaveProfile}>{t("common.save")}</Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
