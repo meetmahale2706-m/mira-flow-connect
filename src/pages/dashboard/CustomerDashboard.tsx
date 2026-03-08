@@ -15,6 +15,9 @@ import CreateDeliveryForm from "@/components/CreateDeliveryForm";
 import CustomerTracking from "@/components/CustomerTracking";
 import DeliveryRating from "@/components/DeliveryRating";
 import SupportChat from "@/components/SupportChat";
+import DeliveryCostBreakdown from "@/components/DeliveryCostBreakdown";
+import DeliveryTimeline from "@/components/DeliveryTimeline";
+import ProofOfDelivery from "@/components/ProofOfDelivery";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
