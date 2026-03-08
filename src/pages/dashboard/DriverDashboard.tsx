@@ -19,6 +19,7 @@ import DriverEarnings from "@/components/DriverEarnings";
 import SupportChat from "@/components/SupportChat";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
 import SmartRouteOptimizer from "@/components/SmartRouteOptimizer";
+import ProofOfDelivery from "@/components/ProofOfDelivery";
 
 interface LatLng { lat: number; lng: number; }
 
