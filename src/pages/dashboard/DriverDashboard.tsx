@@ -304,6 +304,22 @@ const DriverDashboard = () => {
           </div>
         )}
 
+        {/* Smart Route Optimization */}
+        {activeTab === "smartroute" && (
+          <SmartRouteOptimizer
+            deliveries={pendingDeliveries}
+            fuelEfficiency={driverProfile?.fuel_efficiency || 0}
+            onAcceptDelivery={handleAcceptDelivery}
+            onAcceptMultiple={async (dels) => {
+              for (const d of dels) {
+                await supabase.from("deliveries").update({ driver_id: user!.id, status: "assigned" }).eq("id", d.id).eq("status", "pending");
+              }
+              toast.success(`Accepted ${dels.length} optimized deliveries!`);
+              fetchData();
+            }}
+          />
+        )}
+
         {/* Pooled Routes */}
         {activeTab === "pooled" && (
           <div className="grid gap-6 lg:grid-cols-2">
