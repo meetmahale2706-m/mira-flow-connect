@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Navigation, Clock, Ruler } from "lucide-react";
+import { Package, Navigation, Clock, Ruler, IndianRupee, TrendingUp, Weight, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import DeliveryMap, { calcDistance, estimateTime, reverseGeocode, fetchRoute } from "@/components/DeliveryMap";
+import { calculateDeliveryPrice } from "@/utils/pricing";
 import AddressSearch from "@/components/AddressSearch";
 
 interface LatLng { lat: number; lng: number; }
@@ -28,6 +29,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
   const [distance, setDistance] = useState(0);
   const [estTime, setEstTime] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [pricing, setPricing] = useState<ReturnType<typeof calculateDeliveryPrice> | null>(null);
 
   // Fetch route when both points set
   useEffect(() => {
@@ -42,6 +44,16 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       setRoute([]);
     }
   }, [pickupPos, dropoffPos]);
+
+  // Recalculate pricing when distance or weight changes
+  useEffect(() => {
+    const w = parseFloat(weight);
+    if (distance > 0 && w > 0) {
+      setPricing(calculateDeliveryPrice(distance, w));
+    } else {
+      setPricing(null);
+    }
+  }, [distance, weight]);
 
   const handlePickupFromMap = async (pos: LatLng) => {
     setPickupPos(pos);
@@ -78,8 +90,9 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       package_weight: parseFloat(weight),
       distance_km: distance,
       estimated_time_mins: estTime,
+      estimated_cost: pricing?.total || 0,
       status: "pending",
-    });
+    } as any);
 
     if (error) {
       toast.error(error.message);
@@ -137,7 +150,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
             </div>
 
             {distance > 0 && (
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
                   <Ruler className="h-3.5 w-3.5" />
                   {distance} km
@@ -146,6 +159,29 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
                   <Clock className="h-3.5 w-3.5" />
                   ~{estTime} min
                 </Badge>
+              </div>
+            )}
+
+            {pricing && (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold flex items-center gap-1.5">
+                    <IndianRupee className="h-4 w-4 text-primary" />
+                    Estimated Cost
+                  </span>
+                  <span className="text-xl font-bold font-display text-primary">₹{pricing.total}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
+                  <span>Base fee: ₹{pricing.breakdown.base}</span>
+                  <span>Distance: ₹{pricing.breakdown.distance}</span>
+                  <span>Weight: ₹{pricing.breakdown.weight}</span>
+                  {pricing.breakdown.surge > 0 && (
+                    <span className="text-accent-foreground font-medium flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      {pricing.breakdown.surgeLabel}: +₹{pricing.breakdown.surge}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
 

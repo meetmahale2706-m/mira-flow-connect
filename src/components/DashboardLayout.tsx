@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe } from "lucide-react";
+import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, Bell } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
@@ -145,8 +146,9 @@ export default function DashboardLayout({ role, name, onSignOut, activeTab, onTa
       <div className="min-h-screen flex w-full">
         <SidebarNav role={role} name={name} onSignOut={onSignOut} activeTab={activeTab} onTabChange={onTabChange} />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b border-border bg-card/95 backdrop-blur-lg px-4 sticky top-0 z-50">
+          <header className="h-12 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-lg px-4 sticky top-0 z-50">
             <SidebarTrigger className="mr-3" />
+            <NotificationBell />
           </header>
           <main className="flex-1 overflow-auto">
             {children}
