@@ -18,6 +18,7 @@ import DeliveryMap, { fetchRoute } from "@/components/DeliveryMap";
 import DriverEarnings from "@/components/DriverEarnings";
 import SupportChat from "@/components/SupportChat";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
+import SmartRouteOptimizer from "@/components/SmartRouteOptimizer";
 
 interface LatLng { lat: number; lng: number; }
 
