@@ -25,6 +25,8 @@ const CustomerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [trackingDelivery, setTrackingDelivery] = useState<any>(null);
+  const [ratingDelivery, setRatingDelivery] = useState<any>(null);
+  const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
 
   const [name, setName] = useState(profile?.name || "");
   const [mobile, setMobile] = useState(profile?.mobile || "");
