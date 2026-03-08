@@ -7,6 +7,7 @@ import {
   Globe, Layers, Brain, Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /* ─── Animated counter ─── */
 function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
