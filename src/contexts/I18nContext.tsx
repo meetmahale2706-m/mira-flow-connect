@@ -34,6 +34,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.vehicle": "Vehicle",
     "nav.profile": "Profile",
     "nav.analytics": "Analytics",
+    "nav.deepAnalytics": "Deep Analytics",
     "nav.earnings": "Earnings",
     "nav.newDelivery": "New Delivery",
     "nav.tracking": "Live Tracking",
