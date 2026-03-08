@@ -47,6 +47,7 @@ const customerNav = [
   { title: "nav.tracking", icon: Navigation, tab: "tracking" },
   { title: "nav.orders", icon: Package, tab: "orders" },
   { title: "nav.addresses", icon: MapPin, tab: "addresses" },
+  { title: "nav.support", icon: MessageCircle, tab: "support" },
   { title: "nav.profile", icon: Settings, tab: "profile" },
 ];
 
