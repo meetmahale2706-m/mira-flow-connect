@@ -55,6 +55,7 @@ const adminNav = [
   { title: "nav.dashboard", icon: BarChart3, tab: "overview" },
   { title: "nav.users", icon: Users, tab: "users" },
   { title: "nav.drivers", icon: Car, tab: "drivers" },
+  { title: "nav.leaderboard", icon: Trophy, tab: "leaderboard" },
   { title: "nav.deliveries", icon: Package, tab: "deliveries" },
   { title: "nav.analytics", icon: BarChart3, tab: "analytics" },
 ];
