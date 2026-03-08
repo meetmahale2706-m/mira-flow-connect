@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, Bell } from "lucide-react";
+import { Truck, LogOut, Package, MapPin, Car, Settings, BarChart3, Users, Layers, HandMetal, Plus, Navigation, Globe, MessageCircle } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -38,6 +38,7 @@ const driverNav = [
   { title: "nav.pooledRoutes", icon: Layers, tab: "pooled" },
   { title: "nav.earnings", icon: BarChart3, tab: "earnings" },
   { title: "nav.vehicle", icon: Car, tab: "vehicle" },
+  { title: "nav.support", icon: MessageCircle, tab: "support" },
   { title: "nav.profile", icon: Settings, tab: "profile" },
 ];
 
@@ -46,6 +47,7 @@ const customerNav = [
   { title: "nav.tracking", icon: Navigation, tab: "tracking" },
   { title: "nav.orders", icon: Package, tab: "orders" },
   { title: "nav.addresses", icon: MapPin, tab: "addresses" },
+  { title: "nav.support", icon: MessageCircle, tab: "support" },
   { title: "nav.profile", icon: Settings, tab: "profile" },
 ];
 

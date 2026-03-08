@@ -10,12 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Truck, MapPin, Package, Clock, Car, Fuel, CheckCircle2, XCircle,
-  Play, Flag, Ruler, Layers, Navigation, Zap, HandMetal,
+  Play, Flag, Ruler, Layers, Navigation, Zap, HandMetal, Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import DeliveryMap, { fetchRoute } from "@/components/DeliveryMap";
 import DriverEarnings from "@/components/DriverEarnings";
+import SupportChat from "@/components/SupportChat";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
 
 interface LatLng { lat: number; lng: number; }
@@ -27,6 +28,7 @@ const DriverDashboard = () => {
   const [driverProfile, setDriverProfile] = useState<any>(null);
   const [myDeliveries, setMyDeliveries] = useState<any[]>([]);
   const [pendingDeliveries, setPendingDeliveries] = useState<any[]>([]);
+  const [driverRatings, setDriverRatings] = useState<any[]>([]);
   const [pools, setPools] = useState<DeliveryPool[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
@@ -40,10 +42,11 @@ const DriverDashboard = () => {
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const [dpRes, myRes, pendingRes] = await Promise.all([
+    const [dpRes, myRes, pendingRes, ratingsRes] = await Promise.all([
       supabase.from("driver_profiles").select("*").eq("user_id", user.id).maybeSingle(),
       supabase.from("deliveries").select("*").eq("driver_id", user.id).order("created_at", { ascending: false }),
       supabase.from("deliveries").select("*").eq("status", "pending").is("driver_id", null).order("created_at", { ascending: false }),
+      supabase.from("delivery_ratings").select("*").eq("driver_id", user.id),
     ]);
     if (dpRes.data) {
       setDriverProfile(dpRes.data);
@@ -56,6 +59,7 @@ const DriverDashboard = () => {
       setPendingDeliveries(pendingRes.data);
       setPools(poolDeliveries(pendingRes.data));
     }
+    if (ratingsRes.data) setDriverRatings(ratingsRes.data);
     setLoading(false);
   }, [user]);
 
@@ -68,6 +72,10 @@ const DriverDashboard = () => {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [fetchData]);
+
+  const avgRating = driverRatings.length > 0
+    ? (driverRatings.reduce((sum, r) => sum + r.rating, 0) / driverRatings.length).toFixed(1)
+    : null;
 
   const handleToggleAvailability = async () => {
     if (!driverProfile) return;
@@ -177,6 +185,7 @@ const DriverDashboard = () => {
         {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
         {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
         {fuelCost(d.distance_km) > 0 && <span className="flex items-center gap-1"><Fuel className="h-3 w-3" />₹{fuelCost(d.distance_km)}</span>}
+        {d.estimated_cost > 0 && <span className="font-medium text-primary">₹{d.estimated_cost}</span>}
       </div>
       <div className="flex gap-2 pt-1">
         {showActions === "accept" && (
@@ -201,20 +210,29 @@ const DriverDashboard = () => {
   return (
     <DashboardLayout role="driver" name={profile?.name || "Driver"} onSignOut={signOut} activeTab={activeTab} onTabChange={setActiveTab}>
       <div className="p-6">
-        {/* Header with availability toggle */}
+        {/* Header with availability toggle + rating */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="font-display text-2xl font-bold">{t("driver.title")}</h1>
             <p className="text-sm text-muted-foreground">{t("driver.subtitle")}</p>
           </div>
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-card">
-            <span className="text-sm font-medium">{t("driver.availability")}</span>
-            <Switch checked={driverProfile?.is_available || false} onCheckedChange={handleToggleAvailability} />
-            {driverProfile?.is_available ? (
-              <Badge className="bg-primary/10 text-primary gap-1"><CheckCircle2 className="h-3 w-3" /> {t("common.available")}</Badge>
-            ) : (
-              <Badge variant="secondary" className="gap-1"><XCircle className="h-3 w-3" /> {t("common.offline")}</Badge>
+          <div className="flex items-center gap-3">
+            {avgRating && (
+              <div className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 shadow-card">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <span className="text-sm font-bold">{avgRating}</span>
+                <span className="text-xs text-muted-foreground">({driverRatings.length})</span>
+              </div>
             )}
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-card">
+              <span className="text-sm font-medium">{t("driver.availability")}</span>
+              <Switch checked={driverProfile?.is_available || false} onCheckedChange={handleToggleAvailability} />
+              {driverProfile?.is_available ? (
+                <Badge className="bg-primary/10 text-primary gap-1"><CheckCircle2 className="h-3 w-3" /> {t("common.available")}</Badge>
+              ) : (
+                <Badge variant="secondary" className="gap-1"><XCircle className="h-3 w-3" /> {t("common.offline")}</Badge>
+              )}
+            </div>
           </div>
         </div>
 
@@ -375,6 +393,9 @@ const DriverDashboard = () => {
             )}
           </div>
         )}
+
+        {/* Support */}
+        {activeTab === "support" && <SupportChat />}
 
         {/* Profile */}
         {activeTab === "profile" && (
