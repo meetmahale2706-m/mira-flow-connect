@@ -379,6 +379,11 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Deep Analytics */}
+        {activeTab === "deepanalytics" && (
+          <DeliveryAnalytics deliveries={deliveries} driverProfiles={driverProfiles} />
+        )}
       </div>
     </DashboardLayout>
   );
