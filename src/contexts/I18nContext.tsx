@@ -149,6 +149,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.drivers": "ड्राइवर",
     "nav.fuelStats": "ईंधन आंकड़े",
     "nav.language": "भाषा",
+    "nav.support": "सहायता चैट",
 
     "driver.title": "ड्राइवर डैशबोर्ड",
     "driver.subtitle": "अपने वाहन, उपलब्धता और डिलीवरी प्रबंधित करें",
