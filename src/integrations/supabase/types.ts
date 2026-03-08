@@ -27,6 +27,7 @@ export type Database = {
           dropoff_address: string
           dropoff_lat: number | null
           dropoff_lng: number | null
+          estimated_cost: number | null
           estimated_time_mins: number | null
           id: string
           package_weight: number | null
@@ -49,6 +50,7 @@ export type Database = {
           dropoff_address?: string
           dropoff_lat?: number | null
           dropoff_lng?: number | null
+          estimated_cost?: number | null
           estimated_time_mins?: number | null
           id?: string
           package_weight?: number | null
@@ -71,6 +73,7 @@ export type Database = {
           dropoff_address?: string
           dropoff_lat?: number | null
           dropoff_lng?: number | null
+          estimated_cost?: number | null
           estimated_time_mins?: number | null
           id?: string
           package_weight?: number | null
@@ -154,6 +157,47 @@ export type Database = {
           vehicle_type?: string
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          delivery_id: string | null
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_id?: string | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_id?: string | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "deliveries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
