@@ -242,6 +242,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.available": "उपलब्ध",
     "nav.myDeliveries": "माझ्या वितरण",
     "nav.pooledRoutes": "पूल्ड मार्ग",
+    "nav.smartRoute": "स्मार्ट मार्ग",
     "nav.vehicle": "वाहन",
     "nav.profile": "प्रोफाइल",
     "nav.analytics": "विश्लेषण",
