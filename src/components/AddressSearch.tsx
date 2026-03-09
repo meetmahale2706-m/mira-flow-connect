@@ -104,7 +104,7 @@ export default function AddressSearch({ value, onChange, onSelect, placeholder, 
       setResults(merged);
       setShowLocal(localMatches.length > 0);
       setOpen(merged.length > 0);
-    }, 350);
+    }, 200);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
