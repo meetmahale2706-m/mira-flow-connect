@@ -40,21 +40,24 @@ const LOCAL_SUGGESTIONS: SearchResult[] = [
   { lat: 19.2633, lng: 72.8520, display_name: "Pleasant Park, Mira Road, Maharashtra" },
 ];
 
-// Search via Nominatim biased toward Mumbai/Mira-Bhayandar region
+// Search via Photon (Komoot) — fast, autocomplete-friendly geocoder biased toward Mumbai
 async function searchAddressLocal(query: string): Promise<SearchResult[]> {
   if (query.length < 2) return [];
   try {
-    // Bias search to Mumbai metropolitan region using viewbox
+    // Photon supports autocomplete-style queries and is much faster than Nominatim
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=in&viewbox=72.7,19.35,73.0,18.85&bounded=0`,
-      { headers: { "User-Agent": "MiraLink-Logistics/1.0" } }
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6&lat=19.295&lon=72.854&lang=en`
     );
     const data = await res.json();
-    return data.map((d: any) => ({
-      lat: parseFloat(d.lat),
-      lng: parseFloat(d.lon),
-      display_name: d.display_name,
-    }));
+    return (data.features || []).map((f: any) => {
+      const p = f.properties;
+      const parts = [p.name, p.street, p.district, p.city, p.state, p.country].filter(Boolean);
+      return {
+        lat: f.geometry.coordinates[1],
+        lng: f.geometry.coordinates[0],
+        display_name: parts.join(", "),
+      };
+    });
   } catch {
     return [];
   }
