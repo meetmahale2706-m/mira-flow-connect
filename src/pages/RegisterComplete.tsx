@@ -50,7 +50,7 @@ const RegisterComplete = () => {
         <h1 className="mb-2 text-center font-display text-3xl font-bold">Complete Your Profile</h1>
         <p className="mb-8 text-center text-muted-foreground">Select your role and add your phone number</p>
 
-        <div className="mb-6 grid grid-cols-3 gap-3">
+        <div className="mb-6 grid grid-cols-2 gap-3">
           {roles.map((r) => (
             <button
               key={r.value}
