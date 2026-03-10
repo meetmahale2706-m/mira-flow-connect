@@ -40,13 +40,32 @@ const LOCAL_SUGGESTIONS: SearchResult[] = [
   { lat: 19.2633, lng: 72.8520, display_name: "Pleasant Park, Mira Road, Maharashtra" },
 ];
 
-// Search via Photon (Komoot) — fast, autocomplete-friendly geocoder biased toward Mumbai
-async function searchAddressLocal(query: string): Promise<SearchResult[]> {
+// Search via Nominatim with viewbox bias toward Mumbai/Mira-Bhayandar region
+// Falls back to Photon if Nominatim fails
+async function searchAddressAPI(query: string): Promise<SearchResult[]> {
   if (query.length < 2) return [];
+
+  // Try Nominatim first — better coverage for streets, buildings, areas
   try {
-    // Photon supports autocomplete-style queries and is much faster than Nominatim
     const res = await fetch(
-      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6&lat=19.295&lon=72.854&lang=en`
+      `https://nominatim.openstreetmap.org/search?` +
+      `q=${encodeURIComponent(query)}&format=json&limit=8&addressdetails=1` +
+      `&viewbox=72.70,19.40,73.00,18.85&bounded=0&countrycodes=in`
+    );
+    const data = await res.json();
+    if (data.length > 0) {
+      return data.map((item: any) => ({
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lon),
+        display_name: item.display_name,
+      }));
+    }
+  } catch {}
+
+  // Fallback to Photon
+  try {
+    const res = await fetch(
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lat=19.295&lon=72.854&lang=en`
     );
     const data = await res.json();
     return (data.features || []).map((f: any) => {
@@ -94,7 +113,7 @@ export default function AddressSearch({ value, onChange, onSelect, placeholder, 
     if (value.length < 2) return;
 
     debounceRef.current = window.setTimeout(async () => {
-      const apiResults = await searchAddressLocal(value);
+      const apiResults = await searchAddressAPI(value);
       // Merge: local first, then API (deduplicated)
       const localNames = new Set(localMatches.map((l) => l.display_name));
       const merged = [

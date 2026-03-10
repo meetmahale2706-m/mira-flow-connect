@@ -12,7 +12,6 @@ import { Database } from "@/integrations/supabase/types";
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 const roles: { value: AppRole; label: string; icon: React.ElementType; desc: string }[] = [
-  { value: "admin", label: "Admin", icon: UserCircle, desc: "Manage fleet & operations" },
   { value: "driver", label: "Driver", icon: Car, desc: "Deliver packages efficiently" },
   { value: "customer", label: "Customer", icon: Package, desc: "Send & receive packages" },
 ];
@@ -51,7 +50,7 @@ const RegisterComplete = () => {
         <h1 className="mb-2 text-center font-display text-3xl font-bold">Complete Your Profile</h1>
         <p className="mb-8 text-center text-muted-foreground">Select your role and add your phone number</p>
 
-        <div className="mb-6 grid grid-cols-3 gap-3">
+        <div className="mb-6 grid grid-cols-2 gap-3">
           {roles.map((r) => (
             <button
               key={r.value}
