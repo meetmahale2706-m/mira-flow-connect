@@ -12,7 +12,6 @@ import { Database } from "@/integrations/supabase/types";
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 const roles: { value: AppRole; label: string; icon: React.ElementType; desc: string }[] = [
-  { value: "admin", label: "Admin", icon: UserCircle, desc: "Manage fleet & operations" },
   { value: "driver", label: "Driver", icon: Car, desc: "Deliver packages efficiently" },
   { value: "customer", label: "Customer", icon: Package, desc: "Send & receive packages" },
 ];
