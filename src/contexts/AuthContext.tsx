@@ -49,7 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Fire-and-forget to avoid deadlocking the auth lock
+          // Set loading true while we fetch role/profile to prevent premature redirects
+          setLoading(true);
           fetchUserData(session.user.id).then(() => setLoading(false));
         } else {
           setRole(null);
