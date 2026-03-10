@@ -42,17 +42,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    // IMPORTANT: Do NOT await inside onAuthStateChange — it uses an internal lock
+    // that will deadlock with signInWithPassword if the callback is async.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchUserData(session.user.id);
+          // Fire-and-forget to avoid deadlocking the auth lock
+          fetchUserData(session.user.id).then(() => setLoading(false));
         } else {
           setRole(null);
           setProfile(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
