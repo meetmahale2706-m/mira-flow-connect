@@ -113,7 +113,7 @@ export default function AddressSearch({ value, onChange, onSelect, placeholder, 
     if (value.length < 2) return;
 
     debounceRef.current = window.setTimeout(async () => {
-      const apiResults = await searchAddressLocal(value);
+      const apiResults = await searchAddressAPI(value);
       // Merge: local first, then API (deduplicated)
       const localNames = new Set(localMatches.map((l) => l.display_name));
       const merged = [
