@@ -213,21 +213,42 @@ const AdminDashboard = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Mobile</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Joined</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allProfiles.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.name || "—"}</TableCell>
-                      <TableCell>{p.email}</TableCell>
-                      <TableCell>{p.mobile || "—"}</TableCell>
-                      <TableCell>{roleBadge(getUserRole(p.user_id))}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                     <TableHead>Role</TableHead>
+                     <TableHead>Change Role</TableHead>
+                     <TableHead>Joined</TableHead>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {allProfiles.map((p) => {
+                     const currentRole = getUserRole(p.user_id);
+                     const isSelf = p.user_id === profile?.user_id;
+                     return (
+                       <TableRow key={p.id}>
+                         <TableCell className="font-medium">{p.name || "—"}</TableCell>
+                         <TableCell>{p.email}</TableCell>
+                         <TableCell>{p.mobile || "—"}</TableCell>
+                         <TableCell>{roleBadge(currentRole)}</TableCell>
+                         <TableCell>
+                           {isSelf ? (
+                             <span className="text-xs text-muted-foreground">—</span>
+                           ) : (
+                             <Select value={currentRole} onValueChange={(val) => handleRoleChange(p.user_id, val)}>
+                               <SelectTrigger className="w-[130px] h-8 text-xs">
+                                 <SelectValue />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 <SelectItem value="admin">Admin</SelectItem>
+                                 <SelectItem value="driver">Driver</SelectItem>
+                                 <SelectItem value="customer">Customer</SelectItem>
+                               </SelectContent>
+                             </Select>
+                           )}
+                         </TableCell>
+                         <TableCell className="text-sm text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</TableCell>
+                       </TableRow>
+                     );
+                   })}
+                 </TableBody>
               </Table>
             </CardContent>
           </Card>
