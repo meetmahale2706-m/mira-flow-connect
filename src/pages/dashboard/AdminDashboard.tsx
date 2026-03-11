@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, Car, Package, BarChart3, Eye, CheckCircle2, XCircle, Fuel, TrendingUp, Layers, Clock, Ruler } from "lucide-react";
+import { Users, Car, Package, BarChart3, Eye, CheckCircle2, XCircle, Fuel, TrendingUp, Layers, Clock, Ruler, Shield } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import DashboardLayout from "@/components/DashboardLayout";
 import { calculateRouteCost } from "@/utils/deliveryPooling";
@@ -87,6 +89,28 @@ const AdminDashboard = () => {
     )
   ).length;
   const poolingEfficiency = deliveries.length > 0 ? Math.round((poolableCount / deliveries.length) * 100) : 0;
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    const existingRole = allRoles.find((r) => r.user_id === userId);
+    try {
+      if (existingRole) {
+        const { error } = await supabase
+          .from("user_roles")
+          .update({ role: newRole as any })
+          .eq("user_id", userId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role: newRole as any });
+        if (error) throw error;
+      }
+      toast.success(`Role updated to ${newRole}`);
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update role");
+    }
+  };
 
   const roleBadge = (role: string) => {
     switch (role) {
@@ -189,21 +213,42 @@ const AdminDashboard = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Mobile</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Joined</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {allProfiles.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.name || "—"}</TableCell>
-                      <TableCell>{p.email}</TableCell>
-                      <TableCell>{p.mobile || "—"}</TableCell>
-                      <TableCell>{roleBadge(getUserRole(p.user_id))}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                     <TableHead>Role</TableHead>
+                     <TableHead>Change Role</TableHead>
+                     <TableHead>Joined</TableHead>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {allProfiles.map((p) => {
+                     const currentRole = getUserRole(p.user_id);
+                     const isSelf = p.user_id === profile?.user_id;
+                     return (
+                       <TableRow key={p.id}>
+                         <TableCell className="font-medium">{p.name || "—"}</TableCell>
+                         <TableCell>{p.email}</TableCell>
+                         <TableCell>{p.mobile || "—"}</TableCell>
+                         <TableCell>{roleBadge(currentRole)}</TableCell>
+                         <TableCell>
+                           {isSelf ? (
+                             <span className="text-xs text-muted-foreground">—</span>
+                           ) : (
+                             <Select value={currentRole} onValueChange={(val) => handleRoleChange(p.user_id, val)}>
+                               <SelectTrigger className="w-[130px] h-8 text-xs">
+                                 <SelectValue />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 <SelectItem value="admin">Admin</SelectItem>
+                                 <SelectItem value="driver">Driver</SelectItem>
+                                 <SelectItem value="customer">Customer</SelectItem>
+                               </SelectContent>
+                             </Select>
+                           )}
+                         </TableCell>
+                         <TableCell className="text-sm text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</TableCell>
+                       </TableRow>
+                     );
+                   })}
+                 </TableBody>
               </Table>
             </CardContent>
           </Card>
