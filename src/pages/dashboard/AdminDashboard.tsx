@@ -90,6 +90,28 @@ const AdminDashboard = () => {
   ).length;
   const poolingEfficiency = deliveries.length > 0 ? Math.round((poolableCount / deliveries.length) * 100) : 0;
 
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    const existingRole = allRoles.find((r) => r.user_id === userId);
+    try {
+      if (existingRole) {
+        const { error } = await supabase
+          .from("user_roles")
+          .update({ role: newRole as any })
+          .eq("user_id", userId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role: newRole as any });
+        if (error) throw error;
+      }
+      toast.success(`Role updated to ${newRole}`);
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update role");
+    }
+  };
+
   const roleBadge = (role: string) => {
     switch (role) {
       case "admin": return <Badge className="bg-destructive/10 text-destructive">{t("common.admin")}</Badge>;
