@@ -145,6 +145,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.profile": "प्रोफ़ाइल",
     "nav.analytics": "एनालिटिक्स",
     "nav.deepAnalytics": "गहन विश्लेषण",
+    "nav.profitRoutes": "लाभ मार्ग",
     "nav.earnings": "कमाई",
     "nav.newDelivery": "नई डिलीवरी",
     "nav.tracking": "लाइव ट्रैकिंग",
