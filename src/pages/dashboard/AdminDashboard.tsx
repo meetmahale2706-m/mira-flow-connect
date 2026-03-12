@@ -351,6 +351,10 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         )}
+        {/* Profit Per Km Routes */}
+        {activeTab === "profitroutes" && (
+          <ProfitPerKmMap deliveries={deliveries} driverProfiles={driverProfiles} />
+        )}
 
         {/* Analytics */}
         {activeTab === "analytics" && (
