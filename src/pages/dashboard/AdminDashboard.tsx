@@ -14,6 +14,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import DashboardLayout from "@/components/DashboardLayout";
 import { calculateRouteCost } from "@/utils/deliveryPooling";
 import DeliveryAnalytics from "@/components/DeliveryAnalytics";
+import ProfitPerKmMap from "@/components/ProfitPerKmMap";
 
 const CHART_COLORS = ["hsl(174, 62%, 38%)", "hsl(38, 92%, 50%)", "hsl(220, 25%, 14%)", "hsl(0, 84%, 60%)", "hsl(210, 15%, 60%)"];
 
