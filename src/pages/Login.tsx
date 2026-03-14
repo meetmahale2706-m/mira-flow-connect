@@ -104,7 +104,12 @@ const Login = () => {
           </Link>
 
           <h1 className="mb-2 font-display text-3xl font-bold">Sign In</h1>
-          <p className="mb-8 text-muted-foreground">Choose your preferred sign-in method</p>
+          <p className="mb-6 text-muted-foreground">Choose your preferred sign-in method</p>
+
+          <div className="mb-6 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+            <svg xmlns="http://www.w3.org/2000/svg" className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span>Signing in will replace any active session in other tabs. Use incognito or a different browser for multiple accounts.</span>
+          </div>
 
           {/* Google */}
           <Button variant="outline" className="mb-6 w-full gap-2" onClick={handleGoogleLogin} disabled={loading}>
