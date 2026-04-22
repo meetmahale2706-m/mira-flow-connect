@@ -192,7 +192,7 @@ const DriverDashboard = () => {
         <PaymentStatusBadge paymentMethod={d.payment_method} paymentStatus={d.payment_status} />
       </div>
       {d.payment_method === "cod" && d.payment_status !== "paid" && d.estimated_cost > 0 && (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-400">
+        <div className="rounded-md border border-accent/40 bg-accent/10 px-2 py-1.5 text-xs font-medium text-accent-foreground">
           💵 Collect ₹{d.estimated_cost} cash from customer on delivery
         </div>
       )}
