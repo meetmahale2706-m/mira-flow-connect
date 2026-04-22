@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import DeliveryMap, { calcDistance, estimateTime, reverseGeocode, fetchRoute } from "@/components/DeliveryMap";
 import { calculateDeliveryPrice } from "@/utils/pricing";
 import AddressSearch from "@/components/AddressSearch";
+import PaymentMethodSelector, { type PaymentMethod } from "@/components/PaymentMethodSelector";
 
 interface LatLng { lat: number; lng: number; }
 
@@ -45,6 +46,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
   const [pricing, setPricing] = useState<ReturnType<typeof calculateDeliveryPrice> | null>(null);
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
   const [timeSlot, setTimeSlot] = useState("asap");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
 
   useEffect(() => {
     if (pickupPos && dropoffPos) {
@@ -98,6 +100,8 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       estimated_cost: pricing?.total || 0,
       scheduled_date: scheduledDate ? format(scheduledDate, "yyyy-MM-dd") : null,
       scheduled_time_slot: timeSlot !== "asap" ? timeSlot : null,
+      payment_method: paymentMethod,
+      payment_status: "pending",
       status: "pending",
     } as any);
 
@@ -109,6 +113,7 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
       setPickupPos(null); setDropoffPos(null);
       setRoute([]); setDistance(0); setEstTime(0);
       setScheduledDate(undefined); setTimeSlot("asap");
+      setPaymentMethod("cod");
       onCreated();
     }
     setSubmitting(false);
@@ -187,6 +192,8 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
                 </Select>
               </div>
             </div>
+
+            <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
 
             {distance > 0 && (
               <div className="flex flex-wrap gap-3">
