@@ -193,6 +193,8 @@ export default function CreateDeliveryForm({ onCreated }: Props) {
               </div>
             </div>
 
+            <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
+
             {distance > 0 && (
               <div className="flex flex-wrap gap-3">
                 <Badge variant="secondary" className="gap-1.5 px-3 py-1.5"><Ruler className="h-3.5 w-3.5" />{distance} km</Badge>
