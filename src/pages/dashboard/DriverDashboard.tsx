@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Truck, MapPin, Package, Clock, Car, Fuel, CheckCircle2, XCircle,
-  Play, Flag, Ruler, Layers, Navigation, Zap, HandMetal, Star,
+  Play, Flag, Ruler, Layers, Navigation, Zap, HandMetal, Star, Banknote,
 } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
