@@ -18,6 +18,8 @@ import SupportChat from "@/components/SupportChat";
 import DeliveryCostBreakdown from "@/components/DeliveryCostBreakdown";
 import DeliveryTimeline from "@/components/DeliveryTimeline";
 import ProofOfDelivery from "@/components/ProofOfDelivery";
+import PaymentStatusBadge from "@/components/PaymentStatusBadge";
+import UpiPayment from "@/components/UpiPayment";
 
 const CustomerDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -179,9 +181,23 @@ const CustomerDashboard = () => {
                           <MapPin className="h-4 w-4 text-primary" />
                           <span className="text-sm font-medium">{d.pickup_address?.slice(0, 40)}...</span>
                         </div>
-                        <Badge className={statusColor(d.status)}>{d.status}</Badge>
+                        <div className="flex items-center gap-2">
+                          <PaymentStatusBadge paymentMethod={d.payment_method} paymentStatus={d.payment_status} />
+                          <Badge className={statusColor(d.status)}>{d.status}</Badge>
+                        </div>
                       </div>
                       <p className="text-sm text-muted-foreground">→ {d.dropoff_address?.slice(0, 40)}...</p>
+
+                      {/* UPI payment flow for unpaid UPI deliveries */}
+                      {d.payment_method === "upi" && d.payment_status !== "paid" && d.estimated_cost > 0 && (
+                        <UpiPayment
+                          deliveryId={d.id}
+                          amount={d.estimated_cost}
+                          paymentStatus={d.payment_status}
+                          upiTransactionId={d.upi_transaction_id}
+                          onPaid={fetchData}
+                        />
+                      )}
                       
                       <div className="grid gap-4 sm:grid-cols-2">
                         {/* Timeline */}

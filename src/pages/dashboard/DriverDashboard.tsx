@@ -20,6 +20,7 @@ import SupportChat from "@/components/SupportChat";
 import { poolDeliveries, optimizeRoute, calculateRouteCost, DeliveryPool } from "@/utils/deliveryPooling";
 import SmartRouteOptimizer from "@/components/SmartRouteOptimizer";
 import ProofOfDelivery from "@/components/ProofOfDelivery";
+import PaymentStatusBadge from "@/components/PaymentStatusBadge";
 
 interface LatLng { lat: number; lng: number; }
 
@@ -182,13 +183,19 @@ const DriverDashboard = () => {
         <Badge className={statusColor(d.status)}>{d.status}</Badge>
       </div>
       <p className="text-xs text-muted-foreground">→ {d.dropoff_address?.slice(0, 40)}...</p>
-      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+      <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
         {d.distance_km > 0 && <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{d.distance_km} km</span>}
         {d.estimated_time_mins > 0 && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />~{d.estimated_time_mins} min</span>}
         {d.package_weight > 0 && <span className="flex items-center gap-1"><Package className="h-3 w-3" />{d.package_weight} kg</span>}
         {fuelCost(d.distance_km) > 0 && <span className="flex items-center gap-1"><Fuel className="h-3 w-3" />₹{fuelCost(d.distance_km)}</span>}
         {d.estimated_cost > 0 && <span className="font-medium text-primary">₹{d.estimated_cost}</span>}
+        <PaymentStatusBadge paymentMethod={d.payment_method} paymentStatus={d.payment_status} />
       </div>
+      {d.payment_method === "cod" && d.payment_status !== "paid" && d.estimated_cost > 0 && (
+        <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-400">
+          💵 Collect ₹{d.estimated_cost} cash from customer on delivery
+        </div>
+      )}
       <div className="flex gap-2 pt-1">
         {showActions === "accept" && (
           <Button size="sm" className="gap-1" onClick={(e) => { e.stopPropagation(); handleAcceptDelivery(d); }}>
