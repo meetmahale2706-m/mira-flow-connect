@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Truck, MapPin, Package, Clock, Car, Fuel, CheckCircle2, XCircle,
-  Play, Flag, Ruler, Layers, Navigation, Zap, HandMetal, Star,
+  Play, Flag, Ruler, Layers, Navigation, Zap, HandMetal, Star, Banknote,
 } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -118,6 +118,15 @@ const DriverDashboard = () => {
     else { toast.success(t("common.delivered") + "!"); setSelectedDelivery(null); setRoute([]); fetchData(); }
   };
 
+  const handleMarkCodCollected = async (delivery: any) => {
+    const { error } = await supabase
+      .from("deliveries")
+      .update({ payment_status: "paid", paid_at: new Date().toISOString() } as any)
+      .eq("id", delivery.id);
+    if (error) toast.error(error.message);
+    else { toast.success(`Cash collected: ₹${delivery.estimated_cost}`); fetchData(); }
+  };
+
   const handleSaveVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = { vehicle_number: vehicleNumber, vehicle_type: vehicleType, fuel_efficiency: parseFloat(fuelEfficiency) || 0 };
@@ -192,8 +201,18 @@ const DriverDashboard = () => {
         <PaymentStatusBadge paymentMethod={d.payment_method} paymentStatus={d.payment_status} />
       </div>
       {d.payment_method === "cod" && d.payment_status !== "paid" && d.estimated_cost > 0 && (
-        <div className="rounded-md border border-accent/40 bg-accent/10 px-2 py-1.5 text-xs font-medium text-accent-foreground">
-          💵 Collect ₹{d.estimated_cost} cash from customer on delivery
+        <div className="rounded-md border border-accent/40 bg-accent/10 px-2 py-1.5 text-xs font-medium text-accent-foreground flex items-center justify-between gap-2">
+          <span>💵 Collect ₹{d.estimated_cost} cash from customer</span>
+          {showActions === "trip" && (d.status === "in_transit" || d.status === "delivered") && (
+            <Button
+              size="sm"
+              variant="default"
+              className="h-7 gap-1"
+              onClick={(e) => { e.stopPropagation(); handleMarkCodCollected(d); }}
+            >
+              <Banknote className="h-3.5 w-3.5" /> Mark Collected
+            </Button>
+          )}
         </div>
       )}
       <div className="flex gap-2 pt-1">
