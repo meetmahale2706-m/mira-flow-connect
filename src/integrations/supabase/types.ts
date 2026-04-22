@@ -31,6 +31,9 @@ export type Database = {
           estimated_time_mins: number | null
           id: string
           package_weight: number | null
+          paid_at: string | null
+          payment_method: string
+          payment_status: string
           pickup_address: string
           pickup_lat: number | null
           pickup_lng: number | null
@@ -40,6 +43,7 @@ export type Database = {
           started_at: string | null
           status: string
           updated_at: string
+          upi_transaction_id: string | null
         }
         Insert: {
           completed_at?: string | null
@@ -57,6 +61,9 @@ export type Database = {
           estimated_time_mins?: number | null
           id?: string
           package_weight?: number | null
+          paid_at?: string | null
+          payment_method?: string
+          payment_status?: string
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
@@ -66,6 +73,7 @@ export type Database = {
           started_at?: string | null
           status?: string
           updated_at?: string
+          upi_transaction_id?: string | null
         }
         Update: {
           completed_at?: string | null
@@ -83,6 +91,9 @@ export type Database = {
           estimated_time_mins?: number | null
           id?: string
           package_weight?: number | null
+          paid_at?: string | null
+          payment_method?: string
+          payment_status?: string
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
@@ -92,6 +103,7 @@ export type Database = {
           started_at?: string | null
           status?: string
           updated_at?: string
+          upi_transaction_id?: string | null
         }
         Relationships: []
       }
