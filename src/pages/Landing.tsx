@@ -108,7 +108,6 @@ const Landing = () => {
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
             <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
             <a href="#key-points" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Key Points</a>
-            <Link to="/viva" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Viva Q&amp;A</Link>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />

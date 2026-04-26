@@ -7,7 +7,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { I18nProvider } from "@/contexts/I18nContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
-import VivaQA from "./pages/VivaQA";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import RegisterComplete from "./pages/RegisterComplete";
@@ -29,7 +28,6 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/viva" element={<VivaQA />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/register/complete" element={<RegisterComplete />} />
