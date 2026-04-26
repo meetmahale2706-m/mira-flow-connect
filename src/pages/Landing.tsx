@@ -348,27 +348,6 @@ const Landing = () => {
         </div>
       </Section>
 
-      {/* ─── Tech Stack ─── */}
-      <Section className="py-16 bg-secondary/30 border-y border-border">
-        <div className="container text-center">
-          <h3 className="font-display text-lg font-semibold mb-6 text-muted-foreground">Built With Modern Technologies</h3>
-          <div className="flex flex-wrap items-center justify-center gap-6">
-            {["React + TypeScript", "Tailwind CSS", "Lovable Cloud", "Leaflet Maps", "AI Models", "Real-Time DB"].map((tech, i) => (
-              <motion.span
-                key={tech}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="rounded-full border border-border bg-card px-5 py-2 text-sm font-medium text-foreground shadow-card"
-              >
-                {tech}
-              </motion.span>
-            ))}
-          </div>
-        </div>
-      </Section>
-
       {/* ─── CTA ─── */}
       <Section className="py-24">
         <div className="container">
