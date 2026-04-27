@@ -8,8 +8,8 @@ import { Smartphone, Copy, CheckCircle2, IndianRupee } from "lucide-react";
 import { toast } from "sonner";
 
 // Merchant UPI ID — in production this should come from settings/env
-export const MERCHANT_UPI_ID = "miralink@upi";
-export const MERCHANT_NAME = "MiraLink Logistics";
+export const MERCHANT_UPI_ID = "priyasharma123@upi";
+export const MERCHANT_NAME = "Priya Sharma";
 
 interface Props {
   deliveryId: string;
